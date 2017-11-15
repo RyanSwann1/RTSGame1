@@ -102,7 +102,6 @@ void MovementGraph::Frontier::addToGraph(const sf::Vector2f & position, Movement
 	++tileID;
 	assert(!isOnGraph(position, movementGraph));
 	movementGraph.m_graph.emplace_back(std::make_unique<Point>(position, tileID, cameFromID));
-	DebugOverlay::addShape(sf::Vector2f(position.x * 16, position.y * 16));
 }
 
 bool MovementGraph::Frontier::isOnGraph(const sf::Vector2f & position, const MovementGraph& movementGraph) const
@@ -128,7 +127,12 @@ void MovementGraph::createGraph(const sf::Vector2f & startingPosition, const sf:
 		sf::Vector2f(std::floor(targetPosition.x / 16), std::floor(targetPosition.y / 16)), *this, entityID);
 
 	//Scan through existing graph
-	//checkForEntityCollisions(entityID);
+	checkForEntityCollisions(entityID);
+
+	for (const auto& node : m_graph)
+	{
+		DebugOverlay::addShape(sf::Vector2f(node->m_position.x * 16, node->m_position.y * 16));
+	}
 
 	assignNewPositionToMoveTo(startingPosition);
 }
@@ -265,7 +269,7 @@ void MovementGraph::checkForEntityCollisions(int currentEntityID)
 {
 	//Scan through graph to see if any entities - excluding self - are in the way
 	//Once found atempt to re direct path around entity
-	const auto& targetPosition = m_graph.cend()->get()->m_position;
+	const auto& targetPosition = m_graph.back().get()->m_position;
 	for (auto& iter = m_graph.begin(); iter != m_graph.end(); ++iter)
 	{
 		const auto& currentPosition = iter->get()->m_position;
@@ -288,27 +292,26 @@ void MovementGraph::checkForEntityCollisions(int currentEntityID)
 				++y;
 			}
 
-			int distanceFromTarget = MathLibrary::getDistanceBetweenPoints(sf::Vector2f(currentPosition.x * 16, currentPosition.y * 16),
-				sf::Vector2f(targetPosition.x * 16, targetPosition.y * 16));
+			if (frontier.empty())
+			{
+				continue;
+			}
+			int distanceFromTarget = MathLibrary::getDistanceBetweenPoints(sf::Vector2f(frontier.front().x, frontier.front().y),
+				sf::Vector2f(targetPosition.x, targetPosition.y));
 			const sf::Vector2f* nextPoint = nullptr;
 			for (const auto& frontierPosition : frontier)
 			{
-				if (MathLibrary::getDistanceBetweenPoints(sf::Vector2f(frontierPosition.x * 16, frontierPosition.y * 16),
-					sf::Vector2f(targetPosition.x * 16, targetPosition.y * 16)))
+				const int newDistance = MathLibrary::getDistanceBetweenPoints(sf::Vector2f(frontierPosition.x, frontierPosition.y),
+					sf::Vector2f(targetPosition.x, targetPosition.y));
+				if (newDistance < distanceFromTarget)
 				{
-					const int newDistance = MathLibrary::getDistanceBetweenPoints(sf::Vector2f(frontierPosition.x * 16, frontierPosition.y * 16),
-						sf::Vector2f(targetPosition.x * 16, targetPosition.y * 16));
-					if (newDistance < distanceFromTarget)
-					{
-						distanceFromTarget = newDistance;
-						nextPoint = &frontierPosition;
-					}
+					distanceFromTarget = newDistance;
+					nextPoint = &frontierPosition;
 				}
 			}
 
 			assert(nextPoint);
 			iter->get()->m_position = *nextPoint;
-
 		}
 	}
 }
