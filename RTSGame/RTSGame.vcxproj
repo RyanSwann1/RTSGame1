@@ -69,20 +69,41 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>D:\GIT Project\RTSGame1\RTSGame\src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>D:\GIT Project\RTSGame1\RTSGame\src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>D:\GIT Project\RTSGame1\RTSGame\src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>D:\GIT Project\RTSGame1\RTSGame\src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SFML_DIR)\include</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SFML_DIR)\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-window-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;winmm.lib;opengl32.lib;freetype.lib;jpeg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;openal32.lib;sfml-audio-d.lib;flac.lib;ogg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SFML_DIR)\include</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SFML_DIR)\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-window-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;winmm.lib;opengl32.lib;freetype.lib;jpeg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;openal32.lib;sfml-audio-d.lib;flac.lib;ogg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -91,10 +112,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SFML_DIR)\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SFML_DIR)\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-window-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;winmm.lib;opengl32.lib;freetype.lib;jpeg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;openal32.lib;sfml-audio-d.lib;flac.lib;ogg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -104,13 +128,79 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SFML_DIR)\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SFML_DIR)\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-window-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;winmm.lib;opengl32.lib;freetype.lib;jpeg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;openal32.lib;sfml-audio-d.lib;flac.lib;ogg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Components\ComponentAIMovement.h" />
+    <ClInclude Include="src\Components\ComponentBase.h" />
+    <ClInclude Include="src\Components\ComponentCollidable.h" />
+    <ClInclude Include="src\Components\ComponentDrawable.h" />
+    <ClInclude Include="src\Components\ComponentMovable.h" />
+    <ClInclude Include="src\Components\ComponentPosition.h" />
+    <ClInclude Include="src\Components\ComponentSelectable.h" />
+    <ClInclude Include="src\Components\ComponentType.h" />
+    <ClInclude Include="src\Entities\Entity.h" />
+    <ClInclude Include="src\Entities\MovementGraph.h" />
+    <ClInclude Include="src\Game\BoxSelector.h" />
+    <ClInclude Include="src\Game\CollisionHandler.h" />
+    <ClInclude Include="src\Game\DebugOverlay.h" />
+    <ClInclude Include="src\Game\Direction.h" />
+    <ClInclude Include="src\Game\FrameTimer.h" />
+    <ClInclude Include="src\Game\Game.h" />
+    <ClInclude Include="src\Game\MathLibrary.h" />
+    <ClInclude Include="src\Game\Point.h" />
+    <ClInclude Include="src\Game\Timer.h" />
+    <ClInclude Include="src\InputEvent.h" />
+    <ClInclude Include="src\Locators\EntityManagerLocator.h" />
+    <ClInclude Include="src\Locators\FrameTimerLocator.h" />
+    <ClInclude Include="src\Managers\EntityManager.h" />
+    <ClInclude Include="src\Managers\EventManager.h" />
+    <ClInclude Include="src\Managers\SystemManager.h" />
+    <ClInclude Include="src\Systems\SystemAIMovement.h" />
+    <ClInclude Include="src\Systems\SystemBase.h" />
+    <ClInclude Include="src\Systems\SystemCollidable.h" />
+    <ClInclude Include="src\Systems\SystemDirectMessage.h" />
+    <ClInclude Include="src\Systems\SystemDirectMessagePosition.h" />
+    <ClInclude Include="src\Systems\SystemDrawable.h" />
+    <ClInclude Include="src\Systems\SystemEvent.h" />
+    <ClInclude Include="src\Systems\SystemMessage.h" />
+    <ClInclude Include="src\Systems\SystemMessageGlobalEntity.h" />
+    <ClInclude Include="src\Systems\SystemMovable.h" />
+    <ClInclude Include="src\Systems\SystemPosition.h" />
+    <ClInclude Include="src\Systems\SystemSelectable.h" />
+    <ClInclude Include="src\Systems\SystemType.h" />
+    <ClInclude Include="src\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Entities\Entity.cpp" />
+    <ClCompile Include="src\Entities\MovementGraph.cpp" />
+    <ClCompile Include="src\Game\BoxSelector.cpp" />
+    <ClCompile Include="src\Game\CollisionHandler.cpp" />
+    <ClCompile Include="src\Game\DebugOverlay.cpp" />
+    <ClCompile Include="src\Game\FrameTimer.cpp" />
+    <ClCompile Include="src\Game\Game.cpp" />
+    <ClCompile Include="src\Game\MathLibrary.cpp" />
+    <ClCompile Include="src\Game\Timer.cpp" />
+    <ClCompile Include="src\Locators\EntityManagerLocator.cpp" />
+    <ClCompile Include="src\Locators\FrameTimerLocator.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Managers\EntityManager.cpp" />
+    <ClCompile Include="src\Managers\SystemManager.cpp" />
+    <ClCompile Include="src\Systems\SystemAIMovement.cpp" />
+    <ClCompile Include="src\Systems\SystemBase.cpp" />
+    <ClCompile Include="src\Systems\SystemCollidable.cpp" />
+    <ClCompile Include="src\Systems\SystemDrawable.cpp" />
+    <ClCompile Include="src\Systems\SystemMovable.cpp" />
+    <ClCompile Include="src\Systems\SystemPosition.cpp" />
+    <ClCompile Include="src\Systems\SystemSelectable.cpp" />
+    <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
