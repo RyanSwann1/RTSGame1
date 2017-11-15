@@ -23,12 +23,17 @@ bool CollisionHandler::isEntityAtPosition(const sf::FloatRect& entityAABB, int e
 	return false;
 }
 
-bool CollisionHandler::isEntityAtPosition(const sf::Vector2f & position)
+bool CollisionHandler::isEntityAtPosition(const sf::Vector2f & position, int entityID)
 {
 	auto& entityManager = EntityManagerLocator::getEntityManager();
 	const auto AABB = sf::FloatRect(position.x, position.y, 16, 16);
 	for (auto& entity : entityManager.getEntities())
 	{
+		if (entityID == entity->m_ID)
+		{
+			continue;
+		}
+
 		const auto& componentCollidable = entityManager.getEntityComponent<ComponentCollidable>(ComponentType::Collidable, entity);
 		if (componentCollidable.m_AABB.intersects(AABB))
 		{

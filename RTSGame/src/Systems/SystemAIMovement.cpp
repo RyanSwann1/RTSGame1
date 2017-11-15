@@ -56,7 +56,7 @@ void SystemAIMovement::setNewMovementTargetPosition(const sf::Vector2f& targetPo
 	auto& componentAIMovement = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity);
 	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
 
-	componentAIMovement.m_movementGraph.createGraph(componentPosition.m_position, targetPosition);
+	componentAIMovement.m_movementGraph.createGraph(componentPosition.m_position, targetPosition, entity->m_ID);
 }
 
 void SystemAIMovement::handleEntityMovement(const EntityManager& entityManager, std::unique_ptr<Entity>& entity) const

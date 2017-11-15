@@ -29,11 +29,11 @@ class MovementGraph
 	class Frontier
 	{
 	public:
-		Frontier(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, MovementGraph& movementGraph);
+		Frontier(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, MovementGraph& movementGraph, int entityID);
 
 	private:
-		void addToFrontier(const sf::Vector2f& position, std::vector<sf::Vector2f>& frontier);
-		sf::Vector2f getNextPoint(const sf::Vector2f& targetPosition, const std::vector<sf::Vector2f>& frontier) const;
+		void addToFrontier(const sf::Vector2f& position, std::vector<sf::Vector2f>& frontier, int entityID);
+		sf::Vector2f getNextPoint(const sf::Vector2f& targetPosition, const std::vector<sf::Vector2f>& frontier, int entityID) const;
 		void addToGraph(const sf::Vector2f& position, MovementGraph& movementGraph, int& tileID) const;
 
 		bool isOnGraph(const sf::Vector2f& position, const MovementGraph& movementGraph) const;
@@ -47,7 +47,7 @@ public:
 	MovementGraph&& operator=(MovementGraph&&) = delete;
 
 	const sf::Vector2f& getPositionToMoveTo() const;
-	void createGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition);
+	void createGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, int entityID);
 	void updatePositionToMoveTo(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
 
 private:
@@ -57,4 +57,6 @@ private:
 	bool isEntityCollidingWithPositionToMoveTo(EntityManager& entityManager, std::unique_ptr<Entity>& entity);
 	void eraseGraphUntilPosition(const sf::Vector2f& position);
 	void assignNewPositionToMoveTo(const sf::Vector2f& startingPosition);
+
+	void checkForEntityCollisions(int currentEntityID);
 };

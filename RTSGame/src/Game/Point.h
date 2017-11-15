@@ -11,7 +11,7 @@ public:
 		m_cameFromID(cameFromID)
 	{}
 
-	const sf::Vector2f m_position;
+	sf::Vector2f m_position;
 	const int m_ID;
 	const int m_cameFromID;
 };
