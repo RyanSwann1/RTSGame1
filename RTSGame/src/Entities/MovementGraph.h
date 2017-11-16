@@ -59,4 +59,6 @@ private:
 	void assignNewPositionToMoveTo(const sf::Vector2f& startingPosition);
 
 	void checkForEntityCollisions(int currentEntityID);
+
+	void changeGraphForEntityCollisions(int currentEntityID);
 };

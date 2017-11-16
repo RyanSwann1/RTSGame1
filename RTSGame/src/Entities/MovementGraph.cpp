@@ -315,3 +315,18 @@ void MovementGraph::checkForEntityCollisions(int currentEntityID)
 		}
 	}
 }
+
+void MovementGraph::changeGraphForEntityCollisions(int currentEntityID)
+{
+	const sf::Vector2f* pointA = nullptr;
+	const sf::Vector2f* pointB = nullptr;
+
+	for (auto iter = m_graph.cbegin(); iter != m_graph.cend(); ++iter)
+	{
+		const auto& position = iter->get()->m_position;
+		if (CollisionHandler::isEntityAtPosition(sf::Vector2f(position.x * 16, position.y * 16), currentEntityID))
+		{	
+			pointA = 
+		}
+	}
+}
