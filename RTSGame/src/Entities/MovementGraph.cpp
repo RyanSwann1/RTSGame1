@@ -39,7 +39,9 @@ bool MovementGraph::PositionToMoveTo::intersecting(const sf::FloatRect & entityA
 }
 
 //Frontier
-MovementGraph::Frontier::Frontier(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, MovementGraph& movementGraph, int entityID)
+MovementGraph::Frontier::Frontier(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, std::vector<std::unique_ptr<Point>>& graph, int entityID, bool ignoreEntities)
+	: m_targetPosition(targetPosition),
+	m_graph(graph)
 {
 	std::vector<sf::Vector2f> frontier;
 	bool graphComplete = false;
@@ -49,7 +51,7 @@ MovementGraph::Frontier::Frontier(const sf::Vector2f& startingPosition, const sf
 	{
 		addToFrontier(nextPoint, frontier, entityID);
 		nextPoint = getNextPoint(targetPosition, frontier, entityID);
-		addToGraph(nextPoint, movementGraph, tileID);
+		addToGraph(nextPoint, tileID);
 
 		if (nextPoint == targetPosition)
 		{
@@ -95,19 +97,19 @@ sf::Vector2f MovementGraph::Frontier::getNextPoint(const sf::Vector2f & targetPo
 	return *nextPoint;
 }
 
-void MovementGraph::Frontier::addToGraph(const sf::Vector2f & position, MovementGraph& movementGraph, int& tileID) const
+void MovementGraph::Frontier::addToGraph(const sf::Vector2f & position, int& tileID) const
 {
 	int cameFromID = 0;
-	(movementGraph.m_graph.empty() ? cameFromID = 0 : cameFromID = movementGraph.m_graph.back()->m_ID);
+	(m_graph.empty() ? cameFromID = 0 : cameFromID = m_graph.back()->m_ID);
 	++tileID;
-	assert(!isOnGraph(position, movementGraph));
-	movementGraph.m_graph.emplace_back(std::make_unique<Point>(position, tileID, cameFromID));
+	assert(!isOnGraph(position));
+	m_graph.emplace_back(std::make_unique<Point>(position, tileID, cameFromID));
 }
 
-bool MovementGraph::Frontier::isOnGraph(const sf::Vector2f & position, const MovementGraph& movementGraph) const
+bool MovementGraph::Frontier::isOnGraph(const sf::Vector2f & position) const
 {
-	auto cIter = std::find_if(movementGraph.m_graph.cbegin(), movementGraph.m_graph.cend(), [&position](const auto& pointOnGraph) { return pointOnGraph->m_position == position; });
-	return cIter != movementGraph.m_graph.cend();
+	auto cIter = std::find_if(m_graph.cbegin(), m_graph.cend(), [&position](const auto& pointOnGraph) { return pointOnGraph->m_position == position; });
+	return cIter != m_graph.cend();
 }
 
 //MovementGraph
@@ -124,10 +126,10 @@ void MovementGraph::createGraph(const sf::Vector2f & startingPosition, const sf:
 {
 	m_graph.clear();
 	Frontier frontier(sf::Vector2f(std::floor(startingPosition.x / 16), std::floor(startingPosition.y / 16)),
-		sf::Vector2f(std::floor(targetPosition.x / 16), std::floor(targetPosition.y / 16)), *this, entityID);
+		sf::Vector2f(std::floor(targetPosition.x / 16), std::floor(targetPosition.y / 16)), m_graph, entityID, false);
 
 	//Scan through existing graph
-	checkForEntityCollisions(entityID);
+	changeGraphForEntityCollisions(entityID);
 
 	for (const auto& node : m_graph)
 	{
@@ -318,15 +320,47 @@ void MovementGraph::checkForEntityCollisions(int currentEntityID)
 
 void MovementGraph::changeGraphForEntityCollisions(int currentEntityID)
 {
-	const sf::Vector2f* pointA = nullptr;
-	const sf::Vector2f* pointB = nullptr;
+	//Temporary hack fix - will change
+	const auto& firstGraphPosition = m_graph.front()->m_position;
+	const auto& lastGraphPosition = m_graph.back()->m_position;
+	if (CollisionHandler::isEntityAtPosition(firstGraphPosition, currentEntityID) || 
+		CollisionHandler::isEntityAtPosition(lastGraphPosition, currentEntityID))
+	{
+		clearGraph();
+		return;
+	}
 
+	//Find nearest point in which movement graph collides with Entity
+	const sf::Vector2f* pointA = nullptr;
 	for (auto iter = m_graph.cbegin(); iter != m_graph.cend(); ++iter)
 	{
 		const auto& position = iter->get()->m_position;
 		if (CollisionHandler::isEntityAtPosition(sf::Vector2f(position.x * 16, position.y * 16), currentEntityID))
 		{	
-			pointA = 
+			--iter;
+			pointA = &iter->get()->m_position;
+			break;
 		}
 	}
+
+	//Find further point in which movement graph collides with entity
+	const sf::Vector2f* pointB = nullptr;
+	for (int i = m_graph.size() - 1; i >= 0; --i)
+	{
+		const auto& position = m_graph[i]->m_position;
+		if (CollisionHandler::isEntityAtPosition(sf::Vector2f(position.x * 16, position.y * 16), currentEntityID))
+		{
+			++i;
+			pointB = &m_graph[i]->m_position;
+			break;
+		}
+	}
+
+	//Make new graph that intersects these two positions wihtout any entity collisions
+	//Then insert into existing movment graph to make sure that movmnet graph has no entiyt collisions
+}
+
+void MovementGraph::clearGraph()
+{
+	m_graph.clear();
 }

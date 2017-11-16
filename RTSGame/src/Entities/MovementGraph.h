@@ -11,6 +11,8 @@ enum class Direction;
 class SystemManager;
 class MovementGraph
 {
+	friend class Frontier;
+
 	class PositionToMoveTo
 	{
 	public:
@@ -24,19 +26,25 @@ class MovementGraph
 		sf::Vector2f m_position;
 		sf::FloatRect m_AABB;
 	};
-
-	friend class Frontier;
+	
 	class Frontier
 	{
 	public:
-		Frontier(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, MovementGraph& movementGraph, int entityID);
+		Frontier(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, std::vector<std::unique_ptr<Point>>& graph, int entityID, bool ignoreEntities);
+		Frontier(const Frontier&) = delete;
+		Frontier& operator=(const Frontier&) = delete;
+		Frontier(Frontier&&) = delete;
+		Frontier&& operator=(Frontier&&) = delete;
 
 	private:
-		void addToFrontier(const sf::Vector2f& position, std::vector<sf::Vector2f>& frontier, int entityID);
-		sf::Vector2f getNextPoint(const sf::Vector2f& targetPosition, const std::vector<sf::Vector2f>& frontier, int entityID) const;
-		void addToGraph(const sf::Vector2f& position, MovementGraph& movementGraph, int& tileID) const;
+		const sf::Vector2f& m_targetPosition;
+		std::vector<std::unique_ptr<Point>>& m_graph;
 
-		bool isOnGraph(const sf::Vector2f& position, const MovementGraph& movementGraph) const;
+		void addToFrontier(const sf::Vector2f& position, std::vector<sf::Vector2f>& frontier, int entityID);
+		void addToGraph(const sf::Vector2f& position, int& tileID) const;
+		
+		sf::Vector2f getNextPoint(const sf::Vector2f& targetPosition, const std::vector<sf::Vector2f>& frontier, int entityID) const;
+		bool isOnGraph(const sf::Vector2f& position) const;
 	};
 
 public:
@@ -55,10 +63,10 @@ private:
 	PositionToMoveTo m_positionToMoveTo;
 
 	bool isEntityCollidingWithPositionToMoveTo(EntityManager& entityManager, std::unique_ptr<Entity>& entity);
+
 	void eraseGraphUntilPosition(const sf::Vector2f& position);
 	void assignNewPositionToMoveTo(const sf::Vector2f& startingPosition);
-
 	void checkForEntityCollisions(int currentEntityID);
-
 	void changeGraphForEntityCollisions(int currentEntityID);
+	void clearGraph();
 };
