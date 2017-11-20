@@ -17,6 +17,10 @@ class MovementGraph
 	{
 	public:
 		PositionToMoveTo();
+		PositionToMoveTo(const PositionToMoveTo&) = delete;
+		PositionToMoveTo& operator=(const PositionToMoveTo&) = delete;
+		PositionToMoveTo(PositionToMoveTo&&) = delete;
+		PositionToMoveTo&& operator=(PositionToMoveTo&&) = delete;
 
 		const sf::Vector2f& getPosition() const;
 		void setPosition(const sf::Vector2f& position);
@@ -66,7 +70,6 @@ private:
 
 	void eraseGraphUntilPosition(const sf::Vector2f& position);
 	void assignNewPositionToMoveTo(const sf::Vector2f& startingPosition);
-	void checkForEntityCollisions(int currentEntityID);
 	void changeGraphForEntityCollisions(int currentEntityID);
 	void clearGraph();
 };
