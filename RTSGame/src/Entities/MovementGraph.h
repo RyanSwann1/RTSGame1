@@ -13,6 +13,20 @@ class MovementGraph
 {
 	friend class Frontier;
 
+	class RandomTileSelector
+	{
+	public:
+		RandomTileSelector(const RandomTileSelector&) = delete;
+		RandomTileSelector& operator=(const RandomTileSelector&) = delete;
+		RandomTileSelector(RandomTileSelector&&) = delete;
+		RandomTileSelector&& operator=(const RandomTileSelector&&) = delete;
+
+		sf::Vector2f getRandomPositionFromTargetPosition(const sf::Vector2f& targetPosition) const;
+		
+	private:
+
+	};
+
 	class PositionToMoveTo
 	{
 	public:

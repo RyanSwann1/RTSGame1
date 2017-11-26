@@ -65,6 +65,7 @@ void SystemAIMovement::handleEntityMovement(const EntityManager& entityManager, 
 	const auto& positionToMoveTo = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity).m_movementGraph.getPositionToMoveTo();
 	const auto moveDirection = MathLibrary::getDirectionFromBetweenPoints(componentPosition.m_position, positionToMoveTo);
 
+	//To fix error, will change later
 	if (positionToMoveTo == sf::Vector2f(0, 0))
 	{
 		return;

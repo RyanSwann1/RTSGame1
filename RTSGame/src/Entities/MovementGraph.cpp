@@ -15,6 +15,11 @@
 #include <Game\CollisionHandler.h>
 #include <iostream>
 
+sf::Vector2f MovementGraph::RandomTileSelector::getRandomPositionFromTargetPosition(const sf::Vector2f & targetPosition) const
+{
+	return sf::Vector2f();
+}
+
 //Point to move to
 MovementGraph::PositionToMoveTo::PositionToMoveTo()
 	: m_AABB(sf::Vector2f(), sf::Vector2f(16, 16)),
@@ -130,7 +135,7 @@ const sf::Vector2f & MovementGraph::getPositionToMoveTo() const
 
 void MovementGraph::createGraph(const sf::Vector2f & startingPosition, const sf::Vector2f & targetPosition, int entityID)
 {
-	//Cannot move to where entity is
+	//Cannot move to where another entity is
 	if (CollisionHandler::isEntityAtPosition(targetPosition, entityID))
 	{
 		return;
@@ -326,3 +331,4 @@ void MovementGraph::clearGraph()
 {
 	m_graph.clear();
 }
+
