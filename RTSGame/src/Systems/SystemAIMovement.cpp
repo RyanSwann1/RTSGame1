@@ -56,13 +56,13 @@ void SystemAIMovement::setNewMovementTargetPosition(const sf::Vector2f& targetPo
 	auto& componentAIMovement = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity);
 	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
 
-	componentAIMovement.m_movementGraph.createGraph(componentPosition.m_position, targetPosition, entity->m_ID);
+	componentAIMovement.m_movementGraph.createGraph(componentPosition.m_position, targetPosition, entity);
 }
 
 void SystemAIMovement::handleEntityMovement(const EntityManager& entityManager, std::unique_ptr<Entity>& entity) const
 {
 	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
-	const auto& positionToMoveTo = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity).m_movementGraph.getPositionToMoveTo();
+	const auto& positionToMoveTo = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity).m_movementGraph.getDestination();
 	const auto moveDirection = MathLibrary::getDirectionFromBetweenPoints(componentPosition.m_position, positionToMoveTo);
 
 	//To fix error, will change later

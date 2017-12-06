@@ -1,9 +1,6 @@
 #pragma once
 
-#include <SFML\Graphics.hpp>
-#include <Game\Point.h>
-#include <vector>
-#include <memory>
+#include <Game\Graph.h>
 
 class Entity;
 class EntityManager;
@@ -11,58 +8,39 @@ enum class Direction;
 class SystemManager;
 class MovementGraph
 {
-	friend class Frontier;
+	//--MAIN POINTS--
+	//Names Clearer
+	//Make control flow easier to read
+	//Make header files easier to read - what you see is what you get
+	//Make sure class cannot be mis-used - IE calling functions in the wrong order - shouldn't be able to do that
 
-	class RandomTileSelector
-	{
-	public:
-		RandomTileSelector(const RandomTileSelector&) = delete;
-		RandomTileSelector& operator=(const RandomTileSelector&) = delete;
-		RandomTileSelector(RandomTileSelector&&) = delete;
-		RandomTileSelector&& operator=(const RandomTileSelector&&) = delete;
-
-		sf::Vector2f getRandomPositionFromTargetPosition(const sf::Vector2f& targetPosition) const;
-		
-	private:
-
-	};
-
-	class PositionToMoveTo
-	{
-	public:
-		PositionToMoveTo();
-		PositionToMoveTo(const PositionToMoveTo&) = delete;
-		PositionToMoveTo& operator=(const PositionToMoveTo&) = delete;
-		PositionToMoveTo(PositionToMoveTo&&) = delete;
-		PositionToMoveTo&& operator=(PositionToMoveTo&&) = delete;
-
-		const sf::Vector2f& getPosition() const;
-		void setPosition(const sf::Vector2f& position);
-		bool intersecting(const sf::FloatRect& entityAABB) const;
-
-	private:
-		sf::Vector2f m_position;
-		sf::FloatRect m_AABB;
-	};
+	//Put these classes in the cpp file 
+	//Shouldn't hvae to look at it straight away, not used in the header file
+	//Aim is simplicity - what you see is what you get
+	//What does this class do
+	//How much data does this class store
 	
-	class Frontier
+	//Dont put it in the header file - doesn't need to be used there
+	//Shouldn't be a class
+	//Point of a class is to group data together
+	//Have a method instead
+	//Interface has no public methods - red flag
+
+	class Destination
 	{
 	public:
-		Frontier(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, std::vector<std::unique_ptr<Point>>& graph, int entityID, bool ignoreEntities);
-		Frontier(const Frontier&) = delete;
-		Frontier& operator=(const Frontier&) = delete;
-		Frontier(Frontier&&) = delete;
-		Frontier&& operator=(Frontier&&) = delete;
+		Destination();
+		Destination(const Destination&) = delete;
+		Destination& operator=(const Destination&) = delete;
+		Destination(Destination&&) = delete;
+		Destination&& operator=(Destination&&) = delete;
+
+		const sf::FloatRect& getDestination() const;
+		sf::Vector2f getPosition() const;
+		void setPosition(const sf::Vector2f& newPosition);
 
 	private:
-		const sf::Vector2f& m_targetPosition;
-		std::vector<std::unique_ptr<Point>>& m_graph;
-
-		void addToFrontier(const sf::Vector2f& position, std::vector<sf::Vector2f>& frontier, int entityID);
-		void addToGraph(const sf::Vector2f& position, int& tileID) const;
-		
-		sf::Vector2f getNextPoint(const sf::Vector2f& targetPosition, const std::vector<sf::Vector2f>& frontier, int entityID) const;
-		bool isOnGraph(const sf::Vector2f& position) const;
+		sf::FloatRect m_destination;
 	};
 
 public:
@@ -72,18 +50,19 @@ public:
 	MovementGraph(MovementGraph&&) = delete;
 	MovementGraph&& operator=(MovementGraph&&) = delete;
 
-	const sf::Vector2f& getPositionToMoveTo() const;
-	void createGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, int entityID);
+	//Do not allow class to be mis used
+	//Can remove createGraph from the public interface
+	//Do not have to class methods in a certain order - if have to == bad design
+
+	sf::Vector2f getDestination() const;
+	void createGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, std::unique_ptr<Entity>& entity);
 	void updatePositionToMoveTo(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
 
 private:
-	std::vector<std::unique_ptr<Point>> m_graph;
-	PositionToMoveTo m_positionToMoveTo;
+	Graph m_graph;
+	Destination m_destination;
 
-	bool isEntityCollidingWithPositionToMoveTo(EntityManager& entityManager, std::unique_ptr<Entity>& entity);
-
-	void eraseGraphUntilPosition(const sf::Vector2f& position);
-	void assignNewPositionToMoveTo(const sf::Vector2f& startingPosition);
+	void assignNewDestination(const sf::Vector2f& startingPosition, std::unique_ptr<Entity>& entity);
 	void changeGraphForEntityCollisions(int currentEntityID);
-	void clearGraph();
+	void assignDestinationAwayFromEntity(std::unique_ptr<Entity>& entity);
 };
