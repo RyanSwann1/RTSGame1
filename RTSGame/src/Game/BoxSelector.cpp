@@ -65,7 +65,7 @@ void BoxSelector::draw(sf::RenderWindow & window) const
 void BoxSelector::onMouseButtonLeftDown()
 {
 	m_leftMouseButtonHeld = true;
-	const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(m_window.getWindow()).x, sf::Mouse::getPosition(m_window.getWindow()).x);
+	const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(m_window.getWindow()).x, sf::Mouse::getPosition(m_window.getWindow()).y);
 	m_rect.setPosition(mousePosition);
 	m_rectAABB.left = mousePosition.x;
 	m_rectAABB.top = mousePosition.y; 

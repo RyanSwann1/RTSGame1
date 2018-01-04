@@ -62,7 +62,7 @@ class MovementGraph
 		void reachedTargetPosition();
 
 		void setTargetPosition(const sf::Vector2f& newPosition);
-		void reassignTargetToNeighbouringPosition(const sf::Vector2f& position, Graph& graph, int entityID);
+		void reassignTargetToNeighbouringPosition(const sf::Vector2f& position, Graph& graph, Destination& destination, int entityID);
 
 	private:
 		bool m_reachedTargetPosition;
@@ -81,7 +81,6 @@ public:
 	
 	void createGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, std::unique_ptr<Entity>& entity);
 	void updateDestination(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
-	void onEntityReachingTargetPosition(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
 	bool isEntityOnTargetPosition(const ComponentPosition& componentPosition) const;
 
 private:

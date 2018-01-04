@@ -107,28 +107,32 @@ void MovementGraph::TargetPosition::setTargetPosition(const sf::Vector2f & newPo
 	m_reachedTargetPosition = false;
 }
 
-void MovementGraph::TargetPosition::reassignTargetToNeighbouringPosition(const sf::Vector2f & position, Graph& graph, int entityID)
+void MovementGraph::TargetPosition::reassignTargetToNeighbouringPosition(const sf::Vector2f & position, Graph& graph, Destination& destination, int entityID)
 {
 	//const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
-	const auto& position = graph.getGraph().back()->m_position;
+	//const auto& position = graph.getGraph().back()->m_position;
 	const int frontierSearchRadius = 1;
 	const int maxRow = 3;
-	int y = position.y - 1;
+	const auto targetPos = sf::Vector2f(std::floor(position.x / 16), std::floor(position.y / 16));
+	int y = targetPos.y - 1;
 	int currentNode = 0;
 	bool correctNodeFound = false;
+	const int maxNode = 8;
 	while (!correctNodeFound)
 	{
-		const int targetNode = Utilities::getRandomNumber(0, 9);
+		const int targetNode = Utilities::getRandomNumber(0, maxNode);
 		for (int row = 0; row < maxRow && !correctNodeFound; ++row)
 		{
-			for (int x = position.x - frontierSearchRadius; x <= position.x + frontierSearchRadius; ++x)
+			for (int x = targetPos.x - frontierSearchRadius; x <= targetPos.x + frontierSearchRadius; ++x)
 			{
-				if (currentNode == targetNode && graph.isOnGraph(sf::Vector2f(x, y))
-					&& !CollisionHandler::isEntityAtPosition(sf::Vector2f(x * 16, y * 16), entityID))
+				std::cout << targetNode << "\n";
+				std::cout << currentNode << "\n";
+				if (currentNode == targetNode && !graph.isOnGraph(sf::Vector2f(x, y))
+					&& !CollisionHandler::isEntityAtTile(sf::Vector2f(x * 16, y * 16), entityID))
 				{
 					m_targetPosition = sf::Vector2f(x * 16, y * 16);
 					//m_targetPosition.setTargetPosition(sf::Vector2f(x * 16, y * 16));
-					//m_destination.setPosition(sf::Vector2f(x * 16, y * 16));
+					destination.setPosition(sf::Vector2f(x * 16, y * 16));
 					graph.addToGraph(sf::Vector2f(x, y));
 					correctNodeFound = true;
 					break;
@@ -185,64 +189,28 @@ void MovementGraph::updateDestination(SystemManager& systemManager, EntityManage
 	const auto& correctEntityPosition = m_destination.getPosition();
 	if (correctEntityPosition == m_targetPosition.getTargetPosition())
 	{
+		std::cout << "Reached target Position\n";
 		if (CollisionHandler::isEntityAtPosition(correctEntityPosition, entity->m_ID))
 		{
-
+			std::cout << "Re-correcting target position due to another entity being in place\n";
+			m_targetPosition.reassignTargetToNeighbouringPosition(correctEntityPosition, m_graph, m_destination, entity->m_ID);
 		}
-
-		systemManager.addSystemMessage(SystemMessage(SystemEvent::StopMovement, SystemType::Movable, entity));
-		m_targetPosition.reachedTargetPosition();
+		else
+		{
+			std::cout << "No entity occupying target position\n";
+			systemManager.addSystemMessage(SystemMessage(SystemEvent::StopMovement, SystemType::Movable, entity));
+			m_targetPosition.reachedTargetPosition();
+		}
 	}
 	else
 	{
+		std::cout << "Correct the current position of the entity\n";
 		systemManager.sendSystemDirectMessagePosition(SystemDirectMessagePosition(correctEntityPosition, entity,
 			SystemEvent::CorrectPosition), SystemType::Position);
 	}
 
 	m_graph.eraseGraphUntilPosition(correctEntityPosition);
 	assignNewDestination(correctEntityPosition, entity);	
-}
-
-void MovementGraph::onEntityReachingTargetPosition(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity)
-{
-	if (m_targetPosition.getTargetPosition().x == 0 && m_targetPosition.getTargetPosition().y == 0)
-	{
-		return;
-	}
-
-	if (!CollisionHandler::isEntityAtPosition(m_targetPosition.getTargetPosition(), entity->m_ID))
-	{
-		return;
-	}
-
-	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
-	const auto& position = m_graph.getGraph().back()->m_position;
-	const int frontierSearchRadius = 1;
-	const int maxRow = 3;
-	int y = position.y - 1;
-	int currentNode = 0;
-	bool correctNodeFound = false;
-	while (!correctNodeFound)
-	{
-		const int targetNode = Utilities::getRandomNumber(0, 9);
-		for (int row = 0; row < maxRow && !correctNodeFound; ++row)
-		{
-			for (int x = position.x - frontierSearchRadius; x <= position.x + frontierSearchRadius; ++x)
-			{
-				if (currentNode == targetNode && !m_graph.isOnGraph(sf::Vector2f(x, y))
-					&& !CollisionHandler::isEntityAtPosition(sf::Vector2f(x * 16, y * 16), entity->m_ID))
-				{
-					m_targetPosition.setTargetPosition(sf::Vector2f(x * 16, y * 16));
-					//m_destination.setPosition(sf::Vector2f(x * 16, y * 16));
-					m_graph.addToGraph(sf::Vector2f(x, y));
-					correctNodeFound = true;
-					break;
-				}
-				++currentNode;
-			}
-			++y;
-		}
-	}
 }
 
 bool MovementGraph::isEntityOnTargetPosition(const ComponentPosition& componentPosition) const

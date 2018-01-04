@@ -21,5 +21,4 @@ private:
 	void handleEntityMovementDirection(const EntityManager& entityManager, std::unique_ptr<Entity>& entity) const;
 
 	void updateDestination(EntityManager& entityManager, std::unique_ptr<Entity>& entity) const;
-	void onEntityReachingTargetPosition(EntityManager& entityManager, std::unique_ptr<Entity>& entity) const;
 };

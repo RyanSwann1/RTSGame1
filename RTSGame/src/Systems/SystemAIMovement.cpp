@@ -30,7 +30,6 @@ void SystemAIMovement::update() const
 		
 		updateDestination(entityManager, entity);
 		handleEntityMovementDirection(entityManager, entity);
-		onEntityReachingTargetPosition(entityManager, entity);
 	}
 }
 
@@ -70,7 +69,6 @@ void SystemAIMovement::handleEntityMovementDirection(const EntityManager& entity
 
 	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
 	const auto moveDirection = MathLibrary::getDirectionFromBetweenPoints(componentPosition.m_position, movementGraph.getDestination());
-	std::cout << static_cast<int>(moveDirection) << "\n";
 	switch (moveDirection)
 	{
 	case Direction::Right :
@@ -120,10 +118,4 @@ void SystemAIMovement::updateDestination(EntityManager & entityManager, std::uni
 {
 	auto& componentAIMovement = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity);
 	componentAIMovement.m_movementGraph.updateDestination(m_systemManager, entityManager, entity);
-}
-
-void SystemAIMovement::onEntityReachingTargetPosition(EntityManager & entityManager, std::unique_ptr<Entity>& entity) const
-{
-	auto& componentAIMovement = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity);
-	componentAIMovement.m_movementGraph.onEntityReachingTargetPosition(m_systemManager, entityManager, entity);
 }

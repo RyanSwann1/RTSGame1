@@ -157,10 +157,6 @@ void SystemMovable::moveEntity(const ComponentMovable & componentMovable, Compon
 	const float deltaTime = FrameTimerLocator::getFrameTimer().getDeltaTime();
 	componentPosition.m_position.x += componentMovable.m_velocity.x * deltaTime;
 	componentPosition.m_position.y += componentMovable.m_velocity.y * deltaTime;
-	if (componentMovable.m_velocity == sf::Vector2f(0, 0))
-	{
-		std::cout << "No Movement";
-	}
 }
 
 void SystemMovable::resetVelocity(ComponentMovable & componentMovable) const

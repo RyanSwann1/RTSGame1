@@ -13,7 +13,7 @@ Game::Game()
 	m_entityManager.addEntity("Marine", sf::Vector2f(192, 192));
 	m_entityManager.addEntity("Marine", sf::Vector2f(128, 128));
 	//m_entityManager.addEntity("Marine", sf::Vector2f(144, 144));
-	m_entityManager.addEntity("Building", sf::Vector2f(258, 258));
+	//m_entityManager.addEntity("Building", sf::Vector2f(258, 258));
 }
 
 bool Game::isRunning() const
