@@ -9,6 +9,7 @@ enum class ComponentType
 	Collidable,
 	AIMovement,
 	AllComponents,
+	Spawner,
 	Total
 };
 

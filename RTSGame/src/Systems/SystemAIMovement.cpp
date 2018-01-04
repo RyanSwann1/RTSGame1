@@ -9,8 +9,9 @@
 #include <Systems\SystemDirectMessagePosition.h>
 #include <Game\Direction.h>
 #include <math.h>
-#include <Game\DebugOverlay.h>
 #include <Game\MathLibrary.h>
+#include <Game\CollisionHandler.h>
+#include <iostream>
 
 //System AIMovement
 SystemAIMovement::SystemAIMovement(SystemManager& systemManager, SystemType systemType, ComponentType requiredComponent)
@@ -27,8 +28,9 @@ void SystemAIMovement::update() const
 			continue;
 		}
 		
-		updatePositionToMoveTo(entityManager, entity);
-		handleEntityMovement(entityManager, entity);
+		updateDestination(entityManager, entity);
+		handleEntityMovementDirection(entityManager, entity);
+		onEntityReachingTargetPosition(entityManager, entity);
 	}
 }
 
@@ -43,7 +45,6 @@ void SystemAIMovement::onSystemDirectMessagePosition(const SystemDirectMessagePo
 	{
 	case SystemEvent::SetMovementTargetPosition :
 	{
-		DebugOverlay::clearShapes();
 		setNewMovementTargetPosition(systemMessage.m_message, systemMessage.m_entity);
 		break;
 	}
@@ -59,18 +60,17 @@ void SystemAIMovement::setNewMovementTargetPosition(const sf::Vector2f& targetPo
 	componentAIMovement.m_movementGraph.createGraph(componentPosition.m_position, targetPosition, entity);
 }
 
-void SystemAIMovement::handleEntityMovement(const EntityManager& entityManager, std::unique_ptr<Entity>& entity) const
+void SystemAIMovement::handleEntityMovementDirection(const EntityManager& entityManager, std::unique_ptr<Entity>& entity) const
 {
-	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
-	const auto& positionToMoveTo = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity).m_movementGraph.getDestination();
-	const auto moveDirection = MathLibrary::getDirectionFromBetweenPoints(componentPosition.m_position, positionToMoveTo);
-
-	//To fix error, will change later
-	if (positionToMoveTo == sf::Vector2f(0, 0))
+	const auto& movementGraph = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity).m_movementGraph;
+	if (movementGraph.entityReachedTargetPosition() || movementGraph.getDestination() == sf::Vector2f(0, 0))
 	{
 		return;
 	}
 
+	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
+	const auto moveDirection = MathLibrary::getDirectionFromBetweenPoints(componentPosition.m_position, movementGraph.getDestination());
+	std::cout << static_cast<int>(moveDirection) << "\n";
 	switch (moveDirection)
 	{
 	case Direction::Right :
@@ -116,8 +116,14 @@ void SystemAIMovement::handleEntityMovement(const EntityManager& entityManager, 
 	}
 }
 
-void SystemAIMovement::updatePositionToMoveTo(EntityManager & entityManager, std::unique_ptr<Entity>& entity) const
+void SystemAIMovement::updateDestination(EntityManager & entityManager, std::unique_ptr<Entity>& entity) const
 {
 	auto& componentAIMovement = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity);
-	componentAIMovement.m_movementGraph.updatePositionToMoveTo(m_systemManager, entityManager, entity);
+	componentAIMovement.m_movementGraph.updateDestination(m_systemManager, entityManager, entity);
+}
+
+void SystemAIMovement::onEntityReachingTargetPosition(EntityManager & entityManager, std::unique_ptr<Entity>& entity) const
+{
+	auto& componentAIMovement = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity);
+	componentAIMovement.m_movementGraph.onEntityReachingTargetPosition(m_systemManager, entityManager, entity);
 }

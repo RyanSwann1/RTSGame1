@@ -20,5 +20,5 @@ private:
 	void moveInDirection(SystemEvent systemEvent, std::unique_ptr<Entity>& entity) const;
 	void moveEntity(const ComponentMovable& componentMovable, ComponentPosition& componentPosition) const;
 	void resetVelocity(ComponentMovable& componentMovable) const;
-	void setEntityVelocity(const sf::Vector2f& speed, sf::Vector2f& velocity) const;
+	void setEntityVelocity(const sf::Vector2f& speed, ComponentMovable& componentMovable) const;
 };

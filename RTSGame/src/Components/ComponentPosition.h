@@ -10,6 +10,10 @@ public:
 		: ComponentBase(type, owningSystem),
 		m_position()
 	{}
+	ComponentPosition(const ComponentPosition&) = delete;
+	ComponentPosition& operator=(const ComponentPosition&) = delete;
+	ComponentPosition(ComponentPosition&&) = delete;
+	ComponentPosition&& operator=(ComponentPosition&&) = delete;
 
 	sf::Vector2f m_position;
 };

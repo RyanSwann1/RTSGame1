@@ -11,6 +11,10 @@ public:
 		m_speed(7500, 7500),
 		m_movementDirection()
 	{}
+	ComponentMovable(const ComponentMovable&) = delete;
+	ComponentMovable& operator=(const ComponentMovable&) = delete;
+	ComponentMovable(ComponentMovable&&) = delete;
+	ComponentMovable&& operator=(ComponentMovable&&) = delete;
 
 	sf::Vector2f m_velocity;
 	sf::Vector2f m_speed;

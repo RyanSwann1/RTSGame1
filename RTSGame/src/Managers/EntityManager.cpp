@@ -7,6 +7,7 @@
 #include <Components\ComponentMovable.h>
 #include <Components\ComponentAIMovement.h>
 #include <Systems\SystemType.h>
+#include <Entities\EntityToSpawn.h>
 
 //Entity Initializer
 void EntityManager::EntityInitializer::initializeEntityComponents(const sf::Vector2f& startingPosition, std::unique_ptr<Entity>& entity) const
@@ -19,6 +20,7 @@ void EntityManager::EntityInitializer::initializeEntityComponents(const sf::Vect
 	std::unique_ptr<ComponentBase>* componentDrawable = &entity->m_components[static_cast<unsigned int>(ComponentType::Drawable)];
 	std::unique_ptr<ComponentBase>* componentCollidable = &entity->m_components[static_cast<unsigned int>(ComponentType::Collidable)];
 	std::unique_ptr<ComponentBase>* componentSelectable = &entity->m_components[static_cast<unsigned int>(ComponentType::Selectable)];
+	
 	if (entity->m_name == "Marine")
 	{
 		static_cast<ComponentDrawable*>(componentDrawable->get())->m_rect.setSize(sf::Vector2f(16, 16));
@@ -105,7 +107,8 @@ std::list<std::unique_ptr<Entity>>& EntityManager::getEntities()
 
 void EntityManager::addEntity(std::string&& name, const sf::Vector2f& startingPosition)
 {
-	auto entity = m_entityFactory.getEntity(m_componentFactory, m_entityInitializer, std::move(name), startingPosition, m_entityCount);
+	auto entity = m_entityFactory.getEntity(m_componentFactory, m_entityInitializer, 
+		std::move(name), startingPosition, m_entityCount);
 	m_entities.emplace_back(std::move(entity));
 	++m_entityCount;
 }

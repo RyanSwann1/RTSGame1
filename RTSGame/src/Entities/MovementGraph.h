@@ -6,6 +6,7 @@ class Entity;
 class EntityManager;
 enum class Direction;
 class SystemManager;
+class ComponentPosition;
 class MovementGraph
 {
 	//--MAIN POINTS--
@@ -26,6 +27,10 @@ class MovementGraph
 	//Have a method instead
 	//Interface has no public methods - red flag
 
+	//Do not allow class to be mis used
+	//Can remove createGraph from the public interface
+	//Do not have to class methods in a certain order - if have to == bad design
+
 	class Destination
 	{
 	public:
@@ -42,6 +47,27 @@ class MovementGraph
 	private:
 		sf::FloatRect m_destination;
 	};
+	
+	class TargetPosition
+	{
+	public:
+		TargetPosition();
+		TargetPosition(const TargetPosition&) = delete;
+		TargetPosition& operator=(const TargetPosition&) = delete;
+		TargetPosition(TargetPosition&&) = delete;
+		TargetPosition&& operator=(TargetPosition&&) = delete;
+
+		bool isTargetPositionReached() const;
+		const sf::Vector2f& getTargetPosition() const;
+		void reachedTargetPosition();
+
+		void setTargetPosition(const sf::Vector2f& newPosition);
+		void reassignTargetToNeighbouringPosition(const sf::Vector2f& position, Graph& graph, int entityID);
+
+	private:
+		bool m_reachedTargetPosition;
+		sf::Vector2f m_targetPosition;
+	};
 
 public:
 	MovementGraph();
@@ -50,19 +76,19 @@ public:
 	MovementGraph(MovementGraph&&) = delete;
 	MovementGraph&& operator=(MovementGraph&&) = delete;
 
-	//Do not allow class to be mis used
-	//Can remove createGraph from the public interface
-	//Do not have to class methods in a certain order - if have to == bad design
-
+	bool entityReachedTargetPosition() const;
 	sf::Vector2f getDestination() const;
+	
 	void createGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, std::unique_ptr<Entity>& entity);
-	void updatePositionToMoveTo(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
+	void updateDestination(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
+	void onEntityReachingTargetPosition(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
+	bool isEntityOnTargetPosition(const ComponentPosition& componentPosition) const;
 
 private:
 	Graph m_graph;
 	Destination m_destination;
+	TargetPosition m_targetPosition;
 
 	void assignNewDestination(const sf::Vector2f& startingPosition, std::unique_ptr<Entity>& entity);
 	void changeGraphForEntityCollisions(int currentEntityID);
-	void assignDestinationAwayFromEntity(std::unique_ptr<Entity>& entity);
 };

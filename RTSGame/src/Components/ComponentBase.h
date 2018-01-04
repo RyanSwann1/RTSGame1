@@ -10,6 +10,10 @@ public:
 		: m_type(componentType),
 		m_owningSystem(owningSystem)
 	{}
+	ComponentBase(const ComponentBase&) = delete;
+	ComponentBase& operator=(const ComponentBase&) = delete;
+	ComponentBase(ComponentBase&&) = delete;
+	ComponentBase&& operator=(ComponentBase&&) = delete;
 	virtual ~ComponentBase() {}
 
 	const ComponentType m_type;

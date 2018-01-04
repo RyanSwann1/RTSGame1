@@ -4,19 +4,16 @@
 #include <Components\ComponentCollidable.h>
 #include <Components\ComponentPosition.h>
 #include <Components\ComponentMovable.h>
+#include <iostream>
 
 bool CollisionHandler::isEntityAtPosition(const sf::FloatRect& entityAABB, int entityID)
 {
 	auto& entityManager = EntityManagerLocator::getEntityManager();
 	for (auto& entity : entityManager.getEntities())
 	{
-		if (entity->m_ID == entityID)
-		{
-			continue;
-		}
-
+		//Don't check the same entity for collision
 		const auto& componentCollidable = entityManager.getEntityComponent<ComponentCollidable>(ComponentType::Collidable, entity);
-		if (componentCollidable.m_AABB.intersects(entityAABB))
+		if (entity->m_ID != entityID && componentCollidable.m_AABB.intersects(entityAABB))
 		{
 			return true;
 		}
@@ -31,13 +28,12 @@ bool CollisionHandler::isEntityAtPosition(const sf::Vector2f & position, int ent
 	const auto AABB = sf::FloatRect(position.x, position.y, 16, 16);
 	for (auto& entity : entityManager.getEntities())
 	{
-		if (entityID == entity->m_ID)
-		{
-			continue;
-		}
-
+		//Don't check same entity for collision
 		const auto& componentCollidable = entityManager.getEntityComponent<ComponentCollidable>(ComponentType::Collidable, entity);
-		if (componentCollidable.m_AABB.intersects(AABB))
+		//std::cout << "x: " << componentCollidable.m_AABB.left << "\n";
+		//std::cout << "y: " << componentCollidable.m_AABB.top << "\n";
+		//std::cout << componentCollidable.
+		if (entityID != entity->m_ID && componentCollidable.m_AABB.intersects(AABB))
 		{
 			return true;
 		}

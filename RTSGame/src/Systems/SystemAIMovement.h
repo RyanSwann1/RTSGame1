@@ -18,7 +18,8 @@ public:
 
 private:
 	void setNewMovementTargetPosition(const sf::Vector2f& targetPosition, std::unique_ptr<Entity>& entity) const;
-	void handleEntityMovement(const EntityManager& entityManager, std::unique_ptr<Entity>& entity) const;
+	void handleEntityMovementDirection(const EntityManager& entityManager, std::unique_ptr<Entity>& entity) const;
 
-	void updatePositionToMoveTo(EntityManager& entityManager, std::unique_ptr<Entity>& entity) const;
+	void updateDestination(EntityManager& entityManager, std::unique_ptr<Entity>& entity) const;
+	void onEntityReachingTargetPosition(EntityManager& entityManager, std::unique_ptr<Entity>& entity) const;
 };

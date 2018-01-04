@@ -32,6 +32,11 @@ void SystemMovable::update() const
 
 void SystemMovable::onSystemEvent(SystemEvent systemEvent, std::unique_ptr<Entity>& entity) const
 {
+	if (!SystemBase::entityFitsRequirements(entity))
+	{
+		return;
+	}
+
 	switch (systemEvent)
 	{
 	case SystemEvent::MoveLeft :
@@ -50,11 +55,6 @@ void SystemMovable::onSystemEvent(SystemEvent systemEvent, std::unique_ptr<Entit
 		break;
 	}
 	case SystemEvent::MoveDown :
-	{
-		moveInDirection(systemEvent, entity);
-		break;
-	}
-	case SystemEvent::StopMovement :
 	{
 		moveInDirection(systemEvent, entity);
 		break;
@@ -79,6 +79,11 @@ void SystemMovable::onSystemEvent(SystemEvent systemEvent, std::unique_ptr<Entit
 		moveInDirection(systemEvent, entity);
 		break;
 	}
+	case SystemEvent::StopMovement:
+	{
+		moveInDirection(systemEvent, entity);
+		break;
+	}
 	}
 }
 
@@ -88,62 +93,60 @@ void SystemMovable::moveInDirection(SystemEvent systemEvent, std::unique_ptr<Ent
 	auto& componentMovable = entityManager.getEntityComponent<ComponentMovable>(ComponentType::Movable, entity);
 	
 	const auto& speed = componentMovable.m_speed;
-	auto& velocity = componentMovable.m_velocity;
 	auto& movementDirection = componentMovable.m_movementDirection;
 	switch (systemEvent)
 	{
 	case SystemEvent::MoveLeft:
 	{
-		setEntityVelocity(sf::Vector2f(-speed.x, 0), velocity);
+		setEntityVelocity(sf::Vector2f(-speed.x, 0), componentMovable);
 		movementDirection = Direction::Left;
 		break;
 	}
 	case SystemEvent::MoveRight:
 	{
-		setEntityVelocity(sf::Vector2f(speed.x, 0), velocity);
+		setEntityVelocity(sf::Vector2f(speed.x, 0), componentMovable);
 		movementDirection = Direction::Right;
 		break;
 	}
 	case SystemEvent::MoveUp:
 	{
-		setEntityVelocity(sf::Vector2f(0, -speed.y), velocity);
+		setEntityVelocity(sf::Vector2f(0, -speed.y), componentMovable);
 		movementDirection = Direction::Up;
 		break;
 	}
 	case SystemEvent::MoveDown:
 	{
-		setEntityVelocity(sf::Vector2f(0, speed.y), velocity);
+		setEntityVelocity(sf::Vector2f(0, speed.y), componentMovable);
 		movementDirection = Direction::Down;
 		break;
 	}
 	case SystemEvent::MoveUpRight :
 	{
-		setEntityVelocity(sf::Vector2f(speed.x, -speed.y), velocity);
+		setEntityVelocity(sf::Vector2f(speed.x, -speed.y), componentMovable);
 		movementDirection = Direction::Right;
 		break;
 	}
 	case SystemEvent::MoveDownRight :
 	{
-		setEntityVelocity(sf::Vector2f(speed.x, speed.y), velocity);
+		setEntityVelocity(sf::Vector2f(speed.x, speed.y), componentMovable);
 		movementDirection = Direction::Right;
 		break;
 	}
 	case SystemEvent::MoveDownLeft :
 	{
-		setEntityVelocity(sf::Vector2f(-speed.x, speed.y), velocity);
+		setEntityVelocity(sf::Vector2f(-speed.x, speed.y), componentMovable);
 		movementDirection = Direction::Left;
 		break;
 	}
 	case SystemEvent::MoveUpLeft : 
 	{
-		setEntityVelocity(sf::Vector2f(-speed.x, -speed.y), velocity);
+		setEntityVelocity(sf::Vector2f(-speed.x, -speed.y), componentMovable);
 		movementDirection = Direction::Left;
 		break;
 	}
 	case SystemEvent::StopMovement :
 	{
 		resetVelocity(componentMovable);
-		movementDirection = Direction::None;
 		break;
 	}
 	}
@@ -154,15 +157,20 @@ void SystemMovable::moveEntity(const ComponentMovable & componentMovable, Compon
 	const float deltaTime = FrameTimerLocator::getFrameTimer().getDeltaTime();
 	componentPosition.m_position.x += componentMovable.m_velocity.x * deltaTime;
 	componentPosition.m_position.y += componentMovable.m_velocity.y * deltaTime;
+	if (componentMovable.m_velocity == sf::Vector2f(0, 0))
+	{
+		std::cout << "No Movement";
+	}
 }
 
 void SystemMovable::resetVelocity(ComponentMovable & componentMovable) const
 {
 	componentMovable.m_velocity.x = 0;
 	componentMovable.m_velocity.y = 0;
+	componentMovable.m_movementDirection = Direction::None;
 }
 
-void SystemMovable::setEntityVelocity(const sf::Vector2f & speed, sf::Vector2f & velocity) const
+void SystemMovable::setEntityVelocity(const sf::Vector2f & speed, ComponentMovable& componentMovable) const
 {
-	velocity = speed;
+	componentMovable.m_velocity = speed;
 }

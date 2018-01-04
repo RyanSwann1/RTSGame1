@@ -10,6 +10,8 @@
 #include <Systems\SystemAIMovement.h>
 #include <Systems\SystemDirectMessagePosition.h>
 #include <Systems\SystemMessageGlobalEntity.h>
+#include <Game\DebugOverlay.h>
+#include <math.h>
 
 BoxSelector::BoxSelector(Window& window, EventManager<InputEvent>& eventManager, SystemManager& systemManager)
 	: m_window(window),
@@ -92,9 +94,13 @@ void BoxSelector::onMouseButtonRightDown()
 			const auto& componentSelectable = entityManager.getEntityComponent<ComponentSelectable>(ComponentType::Selectable, entity);
 			if (componentSelectable.m_selected)
 			{
-				const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(m_window.getWindow()).x, sf::Mouse::getPosition(m_window.getWindow()).y);
-				m_systemManager.sendSystemDirectMessagePosition(SystemDirectMessagePosition(mousePosition, 
+				const auto mousePosition = sf::Vector2f(std::floor(sf::Mouse::getPosition(m_window.getWindow()).x) / 16,
+					std::floor(sf::Mouse::getPosition(m_window.getWindow()).y) / 16);
+
+				m_systemManager.sendSystemDirectMessagePosition(SystemDirectMessagePosition(sf::Vector2f(mousePosition.x * 16, mousePosition.y * 16), 
 					entity, SystemEvent::SetMovementTargetPosition), SystemType::AIMovemement);
+
+				DebugOverlay::clearShapes();
 			}
 		}
 	}

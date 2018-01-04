@@ -13,6 +13,10 @@ public:
 		m_selectedRect.setOutlineColor(sf::Color::Green);
 		m_selectedRect.setOutlineThickness(1.5f);
 	}
+	ComponentSelectable(const ComponentSelectable&) = delete;
+	ComponentSelectable& operator=(const ComponentSelectable&) = delete;
+	ComponentSelectable(ComponentSelectable&&) = delete;
+	ComponentSelectable&& operator=(ComponentSelectable&&) = delete;
 
 	bool m_selected;
 	sf::RectangleShape m_selectedRect;

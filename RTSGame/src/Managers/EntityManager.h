@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <assert.h>
 
+class EntityToSpawn;
 enum class SystemType;
 class EntityManager
 {
