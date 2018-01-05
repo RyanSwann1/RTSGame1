@@ -35,6 +35,13 @@ void EntityManager::EntityInitializer::initializeEntityComponents(const sf::Vect
 		static_cast<ComponentCollidable*>(componentCollidable->get())->m_AABB.height = 48;
 		static_cast<ComponentSelectable*>(componentSelectable->get())->m_selectedRect.setSize(sf::Vector2f(75, 75));
 	}
+	else if (entity->m_name == "MarineSpawner")
+	{
+		static_cast<ComponentDrawable*>(componentDrawable->get())->m_rect.setSize(sf::Vector2f(112, 112));
+		static_cast<ComponentCollidable*>(componentCollidable->get())->m_AABB.width = 112;
+		static_cast<ComponentCollidable*>(componentCollidable->get())->m_AABB.height = 112;
+		static_cast<ComponentSelectable*>(componentSelectable->get())->m_selectedRect.setSize(sf::Vector2f(125, 125));
+	}
 }
 
 //Component Factory
@@ -62,6 +69,7 @@ EntityManager::EntityFactory::EntityFactory()
 		ComponentType::Selectable, ComponentType::Collidable, ComponentType::Movable, ComponentType::AIMovement });
 
 	registerEntity("Building", { ComponentType::Position, ComponentType::Drawable, ComponentType::Collidable, ComponentType::Selectable });
+	registerEntity("MarineSpawner", { ComponentType::Position, ComponentType::Drawable, ComponentType::Collidable, ComponentType::Selectable });
 }
 
 std::unique_ptr<Entity> EntityManager::EntityFactory::getEntity(const ComponentFactory& componentFactory, 

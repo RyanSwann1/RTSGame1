@@ -12,6 +12,69 @@
 #include <Systems\SystemMessageGlobalEntity.h>
 #include <Game\DebugOverlay.h>
 #include <math.h>
+#include <iostream>
+
+//Frontier
+sf::Vector2f getNextFrontierPosition(const sf::Vector2f& startingPosition, std::vector<sf::Vector2f>& frontier);
+
+sf::Vector2f getNextFrontierPosition(const sf::Vector2f & startingPosition, std::vector<sf::Vector2f>& frontier)
+{
+	const int searchRadius = 1;
+	const auto origin = sf::Vector2f(std::floor(startingPosition.x / 16), std::floor(startingPosition.y / 16));
+
+}
+
+//UnitSelectPositioning
+BoxSelector::UnitSelectPositioning::UnitSelectPositioning()
+	: m_entitiesID(),
+	m_startingPosition()
+{}
+
+
+
+void BoxSelector::UnitSelectPositioning::setPositionOrigin(const sf::Vector2f & position)
+{
+}
+
+void BoxSelector::UnitSelectPositioning::addEntityID(int newEntityID)
+{
+	if (std::find_if(m_entitiesID.cbegin(), m_entitiesID.cend(), [newEntityID](const auto& entityID) { return newEntityID == entityID; }) == m_entitiesID.cend())
+	{
+		m_entitiesID.push_back(newEntityID);
+	}
+}
+
+void BoxSelector::UnitSelectPositioning::removeEntity(int removeEntityID)
+{
+	auto iter = std::find_if(m_entitiesID.begin(), m_entitiesID.end(), [removeEntityID](const auto& entityID) { return removeEntityID == entityID; });
+	if(iter != m_entitiesID.cend())
+	{
+		m_entitiesID.erase(iter);
+	}
+}
+
+void BoxSelector::UnitSelectPositioning::clearEntities()
+{
+}
+
+void BoxSelector::UnitSelectPositioning::assignSelectedUnitsToTargetPositions(const sf::Vector2f& startingPosition)
+{
+	bool frontierComplete = false;
+	sf::Vector2f nextPosition = startingPosition;
+	std::vector<sf::Vector2f> frontier;
+	while (!frontierComplete)
+	{
+
+	}
+}
+
+void BoxSelector::UnitSelectPositioning::listAllEntityIDS() const
+{
+	for (const auto& ID : m_entitiesID)
+	{
+		std::cout << ID << "\n";
+	}
+}
 
 BoxSelector::BoxSelector(Window& window, EventManager<InputEvent>& eventManager, SystemManager& systemManager)
 	: m_window(window),
@@ -100,6 +163,10 @@ void BoxSelector::onMouseButtonRightDown()
 				m_systemManager.sendSystemDirectMessagePosition(SystemDirectMessagePosition(sf::Vector2f(mousePosition.x * 16, mousePosition.y * 16), 
 					entity, SystemEvent::SetMovementTargetPosition), SystemType::AIMovemement);
 
+				m_unitSelectPositioning.listAllEntityIDS();
+				m_unitSelectPositioning.clearEntities();
+				std::cout << "\n\n\n";
+
 				DebugOverlay::clearShapes();
 			}
 		}
@@ -120,10 +187,13 @@ void BoxSelector::handleEntityCollisions()
 		if (m_rectAABB.intersects(componentCollidable.m_AABB))
 		{
 			m_systemManager.addSystemMessage(SystemMessage(SystemEvent::Selected, SystemType::Selectable, entity));
+			m_unitSelectPositioning.addEntityID(entity->m_ID);
 		}
 		else
 		{
 			m_systemManager.addSystemMessage(SystemMessage(SystemEvent::Deselected, SystemType::Selectable, entity));
+			m_unitSelectPositioning.removeEntity(entity->m_ID);
 		}
 	}
 }
+

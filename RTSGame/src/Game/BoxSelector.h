@@ -9,6 +9,27 @@ class Window;
 class SystemManager;
 class BoxSelector
 {
+	class UnitSelectPositioning
+	{
+	public:
+		UnitSelectPositioning();
+		UnitSelectPositioning(const UnitSelectPositioning&) = delete;
+		UnitSelectPositioning& operator=(const UnitSelectPositioning&) = delete;
+		UnitSelectPositioning(UnitSelectPositioning&&) = delete;
+		UnitSelectPositioning&& operator=(UnitSelectPositioning&&) = delete;
+
+		//Debug
+		void listAllEntityIDS() const;
+
+		void addEntityID(int entityID);
+		void removeEntity(int entityID);
+		void clearEntities();
+		void assignSelectedUnitsToTargetPositions(const sf::Vector2f& startingPosition);
+
+	private:
+		std::vector<int> m_entitiesID;
+	};
+
 public:
 	BoxSelector(Window& window, EventManager<InputEvent>& eventManager, SystemManager& systemManager);
 	~BoxSelector();
@@ -24,6 +45,7 @@ private:
 	Window& m_window;
 	EventManager<InputEvent>& m_eventManager;
 	SystemManager& m_systemManager;
+	UnitSelectPositioning m_unitSelectPositioning;
 	bool m_leftMouseButtonHeld;
 	bool m_rightMouseButtonDown;
 	bool m_secondaryLeftMouseButtonActivated;

@@ -109,8 +109,6 @@ void MovementGraph::TargetPosition::setTargetPosition(const sf::Vector2f & newPo
 
 void MovementGraph::TargetPosition::reassignTargetToNeighbouringPosition(const sf::Vector2f & position, Graph& graph, Destination& destination, int entityID)
 {
-	//const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
-	//const auto& position = graph.getGraph().back()->m_position;
 	const int frontierSearchRadius = 1;
 	const int maxRow = 3;
 	const auto targetPos = sf::Vector2f(std::floor(position.x / 16), std::floor(position.y / 16));
@@ -125,8 +123,6 @@ void MovementGraph::TargetPosition::reassignTargetToNeighbouringPosition(const s
 		{
 			for (int x = targetPos.x - frontierSearchRadius; x <= targetPos.x + frontierSearchRadius; ++x)
 			{
-				std::cout << targetNode << "\n";
-				std::cout << currentNode << "\n";
 				if (currentNode == targetNode && !graph.isOnGraph(sf::Vector2f(x, y))
 					&& !CollisionHandler::isEntityAtTile(sf::Vector2f(x * 16, y * 16), entityID))
 				{
@@ -140,6 +136,12 @@ void MovementGraph::TargetPosition::reassignTargetToNeighbouringPosition(const s
 				++currentNode;
 			}
 			++y;
+		}
+
+		//Will fix later - only way to make the while loop stop at certain points
+		if (currentNode >= maxNode)
+		{
+			break;
 		}
 	}
 }
@@ -189,22 +191,18 @@ void MovementGraph::updateDestination(SystemManager& systemManager, EntityManage
 	const auto& correctEntityPosition = m_destination.getPosition();
 	if (correctEntityPosition == m_targetPosition.getTargetPosition())
 	{
-		std::cout << "Reached target Position\n";
 		if (CollisionHandler::isEntityAtPosition(correctEntityPosition, entity->m_ID))
 		{
-			std::cout << "Re-correcting target position due to another entity being in place\n";
 			m_targetPosition.reassignTargetToNeighbouringPosition(correctEntityPosition, m_graph, m_destination, entity->m_ID);
 		}
 		else
 		{
-			std::cout << "No entity occupying target position\n";
 			systemManager.addSystemMessage(SystemMessage(SystemEvent::StopMovement, SystemType::Movable, entity));
 			m_targetPosition.reachedTargetPosition();
 		}
 	}
 	else
 	{
-		std::cout << "Correct the current position of the entity\n";
 		systemManager.sendSystemDirectMessagePosition(SystemDirectMessagePosition(correctEntityPosition, entity,
 			SystemEvent::CorrectPosition), SystemType::Position);
 	}
@@ -216,6 +214,17 @@ void MovementGraph::updateDestination(SystemManager& systemManager, EntityManage
 bool MovementGraph::isEntityOnTargetPosition(const ComponentPosition& componentPosition) const
 {
 	return (componentPosition.m_position == m_targetPosition.getTargetPosition() ? true : false);
+}
+
+void MovementGraph::handleEntityReachingTargetPosition(EntityManager& entityManager, std::unique_ptr<Entity>& entity)
+{
+	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
+	//If another entity currently occupies space of target Position
+	if (componentPosition.m_position == m_targetPosition.getTargetPosition()
+		&& CollisionHandler::isEntityAtPosition(m_targetPosition.getTargetPosition(), entity->m_ID))
+	{
+		//Reassign 
+	}
 }
 
 void MovementGraph::assignNewDestination(const sf::Vector2f& startingPosition, std::unique_ptr<Entity>& entity)

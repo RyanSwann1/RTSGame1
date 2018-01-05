@@ -103,3 +103,13 @@ bool CollisionHandler::isEntityAtTile(const sf::Vector2f & position, int entityI
 
 	return false;
 }
+
+bool CollisionHandler::isEntityAtPos(const sf::Vector2f & position)
+{
+	auto& entityManager = EntityManagerLocator::getEntityManager();
+	for (const auto& entity : entityManager.getEntities())
+	{
+		const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
+
+	}
+}

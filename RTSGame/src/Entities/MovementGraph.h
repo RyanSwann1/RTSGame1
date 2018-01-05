@@ -82,6 +82,7 @@ public:
 	void createGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, std::unique_ptr<Entity>& entity);
 	void updateDestination(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
 	bool isEntityOnTargetPosition(const ComponentPosition& componentPosition) const;
+	void handleEntityReachingTargetPosition(EntityManager& entityManager, std::unique_ptr<Entity>& entity);
 
 private:
 	Graph m_graph;

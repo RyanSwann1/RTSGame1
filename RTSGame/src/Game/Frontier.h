@@ -13,11 +13,10 @@ public:
 	Frontier(Frontier&&) = delete;
 	Frontier&& operator=(Frontier&&) = delete;
 
-
-	void add(const sf::Vector2f& position);
+	void createFrontier(const sf::Vector2f& startingPosition, int nodeAmount);
 
 private:
 	std::vector<Point> m_frontier;
-	int m_ID;
 
+	void assignNextPosition(const sf::Vector2f& startingPosition);
 };
