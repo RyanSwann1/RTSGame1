@@ -3,6 +3,7 @@
 #include <Systems\SystemBase.h>
 #include <memory>
 
+class EntityManager;
 class ComponentSpawner;
 class SystemSpawner : public SystemBase
 {
@@ -16,6 +17,6 @@ public:
 	void update() const override;
 
 private:
-	void spawnEntity(std::unique_ptr<Entity>& entity, ComponentSpawner& componentSpawner) const;
+	void spawnEntity(std::unique_ptr<Entity>& entity, ComponentSpawner& componentSpawner, EntityManager& entityManager) const;
 	void updateComponentSpawnTimer(ComponentSpawner& componentSpawner) const;
 };

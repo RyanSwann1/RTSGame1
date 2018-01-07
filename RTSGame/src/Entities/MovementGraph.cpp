@@ -23,12 +23,12 @@ sf::Vector2f getNextPositionForGraph(const sf::Vector2f & position, const sf::Ve
 void constructGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, Graph& graph, int entityID)
 {
 	graph.clearGraph();
-
 	sf::Vector2f nextPosition = startingPosition;
 	while (nextPosition != targetPosition)
 	{
 		nextPosition = getNextPositionForGraph(nextPosition, targetPosition, graph, entityID);
 		graph.addToGraph(nextPosition);
+		DebugOverlay::addShape(sf::Vector2f(nextPosition.x * 16, nextPosition.y * 16));
 	}
 }
 
@@ -37,8 +37,8 @@ sf::Vector2f getNextPositionForGraph(const sf::Vector2f & position, const sf::Ve
 	const int searchRadius = 1;
 	const int maxRow = 3;
 	int y = position.y - 1;
-	sf::Vector2f furthestPoint;
 	float furthestDistance = FLT_MAX;
+	sf::Vector2f furthestPoint;
 	for (int row = 0; row < maxRow; ++row)
 	{
 		for (int x = position.x - searchRadius; x <= position.x + searchRadius; ++x)
@@ -127,7 +127,6 @@ void MovementGraph::TargetPosition::reassignTargetToNeighbouringPosition(const s
 					&& !CollisionHandler::isEntityAtTile(sf::Vector2f(x * 16, y * 16), entityID))
 				{
 					m_targetPosition = sf::Vector2f(x * 16, y * 16);
-					//m_targetPosition.setTargetPosition(sf::Vector2f(x * 16, y * 16));
 					destination.setPosition(sf::Vector2f(x * 16, y * 16));
 					graph.addToGraph(sf::Vector2f(x, y));
 					correctNodeFound = true;
@@ -175,7 +174,6 @@ void MovementGraph::createGraph(const sf::Vector2f & startingPosition, const sf:
 	constructGraph(sf::Vector2f(std::floor(startingPosition.x / 16), std::floor(startingPosition.y / 16)), 
 		sf::Vector2f(targetPos.x / 16, targetPos.y / 16), m_graph, entity->m_ID);
 
-	changeGraphForEntityCollisions(entity->m_ID);
 	assignNewDestination(startingPosition, entity);
 }
 
@@ -187,19 +185,16 @@ void MovementGraph::updateDestination(SystemManager& systemManager, EntityManage
 		return;
 	}
 
-	//Correct position of entity to match postiion of m_destination
+	//Correct position of entity to match postiion of destination
 	const auto& correctEntityPosition = m_destination.getPosition();
 	if (correctEntityPosition == m_targetPosition.getTargetPosition())
 	{
-		if (CollisionHandler::isEntityAtPosition(correctEntityPosition, entity->m_ID))
-		{
-			m_targetPosition.reassignTargetToNeighbouringPosition(correctEntityPosition, m_graph, m_destination, entity->m_ID);
-		}
-		else
-		{
-			systemManager.addSystemMessage(SystemMessage(SystemEvent::StopMovement, SystemType::Movable, entity));
-			m_targetPosition.reachedTargetPosition();
-		}
+		systemManager.sendSystemDirectMessagePosition(SystemDirectMessagePosition(correctEntityPosition, entity,
+			SystemEvent::CorrectPosition), SystemType::Position);
+		systemManager.addSystemMessage(SystemMessage(SystemEvent::StopMovement, SystemType::Movable, entity));
+		m_targetPosition.reachedTargetPosition();
+		
+		DebugOverlay::clearShapes();
 	}
 	else
 	{
@@ -211,22 +206,6 @@ void MovementGraph::updateDestination(SystemManager& systemManager, EntityManage
 	assignNewDestination(correctEntityPosition, entity);	
 }
 
-bool MovementGraph::isEntityOnTargetPosition(const ComponentPosition& componentPosition) const
-{
-	return (componentPosition.m_position == m_targetPosition.getTargetPosition() ? true : false);
-}
-
-void MovementGraph::handleEntityReachingTargetPosition(EntityManager& entityManager, std::unique_ptr<Entity>& entity)
-{
-	const auto& componentPosition = entityManager.getEntityComponent<ComponentPosition>(ComponentType::Position, entity);
-	//If another entity currently occupies space of target Position
-	if (componentPosition.m_position == m_targetPosition.getTargetPosition()
-		&& CollisionHandler::isEntityAtPosition(m_targetPosition.getTargetPosition(), entity->m_ID))
-	{
-		//Reassign 
-	}
-}
-
 void MovementGraph::assignNewDestination(const sf::Vector2f& startingPosition, std::unique_ptr<Entity>& entity)
 {
 	const auto& graph = m_graph.getGraph();
@@ -234,14 +213,13 @@ void MovementGraph::assignNewDestination(const sf::Vector2f& startingPosition, s
 	{
 		return;
 	}
-
-	if (graph.size() == 1)
+	//Only position entity can move to
+	else if (graph.size() == 1)
 	{
 		m_destination.setPosition(sf::Vector2f(graph.back()->m_position.x * 16, graph.back()->m_position.y * 16));
 		return;
 	}
 
-	const sf::Vector2f* pointToMoveTo = nullptr;
 	const auto destination = sf::Vector2f(graph.cbegin()->get()->m_position.x * 16, graph.cbegin()->get()->m_position.y * 16);
 	const auto endPosition = sf::Vector2f(graph.back()->m_position.x * 16, graph.back()->m_position.y * 16);
 	
@@ -255,53 +233,14 @@ void MovementGraph::assignNewDestination(const sf::Vector2f& startingPosition, s
 	{
 		for (auto cIter = graph.cbegin() + 1; cIter != graph.cend(); ++cIter)
 		{
+			//If position is on different x & y axis
 			if (cIter->get()->m_position.x != startingPosition.x && cIter->get()->m_position.y != startingPosition.y)
 			{
-				const auto destination = sf::Vector2f(std::floor(m_destination.getPosition().x / 16), std::floor(m_destination.getPosition().y / 16));
+				//Revert back to position before change of axis of both x & y
 				--cIter;
 				m_destination.setPosition(sf::Vector2f(cIter->get()->m_position.x * 16, cIter->get()->m_position.y * 16));
 				break;
 			}
-		}
-	}
-}
-
-void MovementGraph::changeGraphForEntityCollisions(int currentEntityID)
-{
-	//Temporary hack fix - will change
-	const auto& graph = m_graph.getGraph();
-	const auto& firstGraphPosition = graph.front()->m_position;
-	const auto& lastGraphPosition = graph.back()->m_position;
-	if (CollisionHandler::isEntityAtPosition(firstGraphPosition, currentEntityID) || 
-		CollisionHandler::isEntityAtPosition(lastGraphPosition, currentEntityID))
-	{
-		m_graph.clearGraph();
-		return;
-	}
-
-	//Find nearest point in which movement graph collides with Entity
-	const sf::Vector2f* pointA = nullptr;
-	for (auto iter = graph.cbegin(); iter != graph.cend(); ++iter)
-	{
-		const auto& position = iter->get()->m_position;
-		if (CollisionHandler::isEntityAtPosition(sf::Vector2f(position.x * 16, position.y * 16), currentEntityID))
-		{	
-			--iter;
-			pointA = &iter->get()->m_position;
-			break;
-		}
-	}
-
-	//Find further point in which movement graph collides with entity
-	const sf::Vector2f* pointB = nullptr;
-	for (int i = graph.size() - 1; i >= 0; --i)
-	{
-		const auto& position = graph[i]->m_position;
-		if (CollisionHandler::isEntityAtPosition(sf::Vector2f(position.x * 16, position.y * 16), currentEntityID))
-		{
-			++i;
-			pointB = &graph[i]->m_position;
-			break;
 		}
 	}
 }

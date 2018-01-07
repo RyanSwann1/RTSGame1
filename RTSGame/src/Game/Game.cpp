@@ -6,17 +6,11 @@ Game::Game()
 	: m_frameTimer(),
 	m_inputEventManager(),
 	m_window(sf::Vector2i(750, 750), "SFML_WINDOW", m_inputEventManager),
-	m_boxSelector(m_window, m_inputEventManager, m_systemManager),
+	m_entitySelector(m_window, m_inputEventManager, m_systemManager),
 	m_entityManager(),
 	m_systemManager()
 {
-	m_entityManager.addEntity("Marine", sf::Vector2f(192, 192));
-	m_entityManager.addEntity("Marine", sf::Vector2f(128, 128));
-	
-	//m_entityManager.addEntity("MarineSpawner", sf::Vector2f(200, 200));
-
-	//m_entityManager.addEntity("Marine", sf::Vector2f(144, 144));
-	//m_entityManager.addEntity("Building", sf::Vector2f(258, 258));
+	m_entityManager.addEntity("MarineSpawner", sf::Vector2f(240, 240));
 }
 
 bool Game::isRunning() const
@@ -26,7 +20,7 @@ bool Game::isRunning() const
 
 void Game::update()
 {
-	m_boxSelector.update();
+	m_entitySelector.update();
 	m_frameTimer.update();
 	m_systemManager.update();
 	m_window.update();
@@ -37,7 +31,7 @@ void Game::draw()
 	m_window.clearWindow();
 	m_systemManager.draw(m_window.getWindow());
 	DebugOverlay::draw(m_window.getWindow());
-	m_boxSelector.draw(m_window.getWindow());
+	m_entitySelector.draw(m_window.getWindow());
 	m_window.display();
 }
 

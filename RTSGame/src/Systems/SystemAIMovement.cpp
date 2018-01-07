@@ -28,7 +28,7 @@ void SystemAIMovement::update() const
 			continue;
 		}
 		
-		updateDestination(entityManager, entity);
+		updateMovementGraph(entityManager, entity);
 		handleEntityMovementDirection(entityManager, entity);
 	}
 }
@@ -114,7 +114,7 @@ void SystemAIMovement::handleEntityMovementDirection(const EntityManager& entity
 	}
 }
 
-void SystemAIMovement::updateDestination(EntityManager & entityManager, std::unique_ptr<Entity>& entity) const
+void SystemAIMovement::updateMovementGraph(EntityManager& entityManager, std::unique_ptr<Entity>& entity) const
 {
 	auto& componentAIMovement = entityManager.getEntityComponent<ComponentAIMovement>(ComponentType::AIMovement, entity);
 	componentAIMovement.m_movementGraph.updateDestination(m_systemManager, entityManager, entity);

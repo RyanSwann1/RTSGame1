@@ -1,6 +1,9 @@
 #include "Window.h"
 #include <InputEvent.h>
 #include <Managers\EventManager.h>
+#include <Locators\EntityManagerLocator.h>
+#include <Managers\EntityManager.h>
+#include <iostream>
 
 //Input Handler
 Window::InputHandler::InputHandler(EventManager<InputEvent>& inputEventManager)
@@ -12,7 +15,7 @@ EventManager<InputEvent>& Window::InputHandler::getInputEventManager()
 	return m_inputEventManager;
 }
 
-void Window::InputHandler::update(const sf::Event & sfmlEvent)
+void Window::InputHandler::update(const sf::Event & sfmlEvent, sf::RenderWindow& window)
 {
 	switch (sfmlEvent.type)
 	{
@@ -42,6 +45,18 @@ void Window::InputHandler::update(const sf::Event & sfmlEvent)
 		else if (sfmlEvent.mouseButton.button == sf::Mouse::Right)
 		{
 			m_inputEventManager.notify(InputEvent::RightClickReleased);
+		}
+		break;
+	}
+	case sf::Event::KeyPressed:
+	{
+		if (sfmlEvent.key.code == sf::Keyboard::P)
+		{
+			const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+			auto& entityManager = EntityManagerLocator::getEntityManager();
+			const auto spawnLocation = sf::Vector2f(std::floor(mousePosition.x / 16) * 16, std::floor(mousePosition.y / 16) * 16);
+			entityManager.addEntity("Marine", spawnLocation);
+			std::cout << "SpawnLocation.x: " << spawnLocation.x << ". SpawnLocation.y: " << spawnLocation.y << "\n";
 		}
 		break;
 	}
@@ -91,7 +106,7 @@ void Window::update()
 	sf::Event sfmlEvent;
 	while (m_window.pollEvent(sfmlEvent))
 	{
-		m_inputHandler.update(sfmlEvent);
+		m_inputHandler.update(sfmlEvent, m_window);
 	}
 }
 

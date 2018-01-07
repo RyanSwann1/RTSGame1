@@ -2,7 +2,6 @@
 
 #include <Components\ComponentBase.h>
 #include <vector>
-#include <Entities\EntityToSpawn.h>
 #include <Game\Timer.h>
 
 class ComponentSpawner : public ComponentBase
@@ -18,6 +17,6 @@ public:
 	ComponentSpawner(ComponentSpawner&&) = delete;
 	ComponentSpawner&& operator=(ComponentSpawner&&) = delete;
 
-	std::vector<EntityToSpawn> m_entitySpawnQueue;
+	std::vector<std::string> m_entitySpawnQueue;
 	Timer m_spawnTimer;
 };

@@ -1,4 +1,4 @@
-#include "BoxSelector.h"
+#include "EntitySelector.h"
 #include <Managers\EventManager.h>
 #include <Window.h>
 #include <InputEvent.h>
@@ -13,70 +13,9 @@
 #include <Game\DebugOverlay.h>
 #include <math.h>
 #include <iostream>
+#include <Game\Graph.h>
 
-//Frontier
-sf::Vector2f getNextFrontierPosition(const sf::Vector2f& startingPosition, std::vector<sf::Vector2f>& frontier);
-
-sf::Vector2f getNextFrontierPosition(const sf::Vector2f & startingPosition, std::vector<sf::Vector2f>& frontier)
-{
-	const int searchRadius = 1;
-	const auto origin = sf::Vector2f(std::floor(startingPosition.x / 16), std::floor(startingPosition.y / 16));
-
-}
-
-//UnitSelectPositioning
-BoxSelector::UnitSelectPositioning::UnitSelectPositioning()
-	: m_entitiesID(),
-	m_startingPosition()
-{}
-
-
-
-void BoxSelector::UnitSelectPositioning::setPositionOrigin(const sf::Vector2f & position)
-{
-}
-
-void BoxSelector::UnitSelectPositioning::addEntityID(int newEntityID)
-{
-	if (std::find_if(m_entitiesID.cbegin(), m_entitiesID.cend(), [newEntityID](const auto& entityID) { return newEntityID == entityID; }) == m_entitiesID.cend())
-	{
-		m_entitiesID.push_back(newEntityID);
-	}
-}
-
-void BoxSelector::UnitSelectPositioning::removeEntity(int removeEntityID)
-{
-	auto iter = std::find_if(m_entitiesID.begin(), m_entitiesID.end(), [removeEntityID](const auto& entityID) { return removeEntityID == entityID; });
-	if(iter != m_entitiesID.cend())
-	{
-		m_entitiesID.erase(iter);
-	}
-}
-
-void BoxSelector::UnitSelectPositioning::clearEntities()
-{
-}
-
-void BoxSelector::UnitSelectPositioning::assignSelectedUnitsToTargetPositions(const sf::Vector2f& startingPosition)
-{
-	bool frontierComplete = false;
-	sf::Vector2f nextPosition = startingPosition;
-	std::vector<sf::Vector2f> frontier;
-	while (!frontierComplete)
-	{
-
-	}
-}
-
-void BoxSelector::UnitSelectPositioning::listAllEntityIDS() const
-{
-	for (const auto& ID : m_entitiesID)
-	{
-		std::cout << ID << "\n";
-	}
-}
-
-BoxSelector::BoxSelector(Window& window, EventManager<InputEvent>& eventManager, SystemManager& systemManager)
+EntitySelector::EntitySelector(Window& window, EventManager<InputEvent>& eventManager, SystemManager& systemManager)
 	: m_window(window),
 	m_eventManager(eventManager),
 	m_systemManager(systemManager),
@@ -90,13 +29,13 @@ BoxSelector::BoxSelector(Window& window, EventManager<InputEvent>& eventManager,
 	m_rect.setOutlineColor(sf::Color::Green);
 	m_rect.setOutlineThickness(1.5f);
 
-	m_eventManager.subscribe(InputEvent::LeftClick, std::bind(&BoxSelector::onMouseButtonLeftDown, this), "OnLeftClick");
-	m_eventManager.subscribe(InputEvent::LeftClickReleased, std::bind(&BoxSelector::onMouseButtonLeftRelease, this), "OnLeftRelease");
-	m_eventManager.subscribe(InputEvent::RightClick, std::bind(&BoxSelector::onMouseButtonRightDown, this), "OnRightClick");
-	m_eventManager.subscribe(InputEvent::RightClickReleased, std::bind(&BoxSelector::onMouseButtonRightRelease, this), "OnRightRelease");
+	m_eventManager.subscribe(InputEvent::LeftClick, std::bind(&EntitySelector::onMouseButtonLeftDown, this), "OnLeftClick");
+	m_eventManager.subscribe(InputEvent::LeftClickReleased, std::bind(&EntitySelector::onMouseButtonLeftRelease, this), "OnLeftRelease");
+	m_eventManager.subscribe(InputEvent::RightClick, std::bind(&EntitySelector::onMouseButtonRightDown, this), "OnRightClick");
+	m_eventManager.subscribe(InputEvent::RightClickReleased, std::bind(&EntitySelector::onMouseButtonRightRelease, this), "OnRightRelease");
 }
 
-BoxSelector::~BoxSelector()
+EntitySelector::~EntitySelector()
 {
 	m_eventManager.unsubscribe(InputEvent::LeftClick, "OnLeftClick");
 	m_eventManager.unsubscribe(InputEvent::LeftClickReleased, "OnLeftRelease");
@@ -104,7 +43,7 @@ BoxSelector::~BoxSelector()
 	m_eventManager.unsubscribe(InputEvent::RightClickReleased, "OnRightRelease");
 }
 
-void BoxSelector::update()
+void EntitySelector::update()
 {
 	if (m_leftMouseButtonHeld)
 	{
@@ -117,7 +56,7 @@ void BoxSelector::update()
 	}
 }
 
-void BoxSelector::draw(sf::RenderWindow & window) const
+void EntitySelector::draw(sf::RenderWindow & window) const
 {
 	if (m_leftMouseButtonHeld)
 	{
@@ -125,13 +64,28 @@ void BoxSelector::draw(sf::RenderWindow & window) const
 	}
 }
 
-void BoxSelector::onMouseButtonLeftDown()
+void EntitySelector::onMouseButtonLeftDown()
 {
 	m_leftMouseButtonHeld = true;
 	const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(m_window.getWindow()).x, sf::Mouse::getPosition(m_window.getWindow()).y);
 	m_rect.setPosition(mousePosition);
 	m_rectAABB.left = mousePosition.x;
 	m_rectAABB.top = mousePosition.y; 
+
+	sf::FloatRect clickAABB(mousePosition, sf::Vector2f(16, 16));
+	auto& entityManager = EntityManagerLocator::getEntityManager();
+	for (auto& entity : entityManager.getEntities())
+	{
+		const auto& componentCollidable = entityManager.getEntityComponent<ComponentCollidable>(ComponentType::Collidable, entity);
+		if (clickAABB.intersects(componentCollidable.m_AABB))
+		{
+			m_systemManager.addSystemMessage(SystemMessage(SystemEvent::Selected, SystemType::Selectable, entity));
+		}
+		else
+		{
+			m_systemManager.addSystemMessage(SystemMessage(SystemEvent::Deselected, SystemType::Selectable, entity));
+		}
+	}
 
 	if (m_secondaryLeftMouseButtonActivated)
 	{
@@ -140,13 +94,13 @@ void BoxSelector::onMouseButtonLeftDown()
 	}
 }
 
-void BoxSelector::onMouseButtonLeftRelease()
+void EntitySelector::onMouseButtonLeftRelease()
 {
 	m_secondaryLeftMouseButtonActivated = true;
 	m_leftMouseButtonHeld = false;
 }
 
-void BoxSelector::onMouseButtonRightDown()
+void EntitySelector::onMouseButtonRightDown()
 {
 	m_rightMouseButtonDown = true;
 	if (m_secondaryLeftMouseButtonActivated)
@@ -162,23 +116,17 @@ void BoxSelector::onMouseButtonRightDown()
 
 				m_systemManager.sendSystemDirectMessagePosition(SystemDirectMessagePosition(sf::Vector2f(mousePosition.x * 16, mousePosition.y * 16), 
 					entity, SystemEvent::SetMovementTargetPosition), SystemType::AIMovemement);
-
-				m_unitSelectPositioning.listAllEntityIDS();
-				m_unitSelectPositioning.clearEntities();
-				std::cout << "\n\n\n";
-
-				DebugOverlay::clearShapes();
 			}
 		}
 	}
 }
 
-void BoxSelector::onMouseButtonRightRelease()
+void EntitySelector::onMouseButtonRightRelease()
 {
 	m_rightMouseButtonDown = false;
 }
 
-void BoxSelector::handleEntityCollisions()
+void EntitySelector::handleEntityCollisions()
 {
 	auto& entityManager = EntityManagerLocator::getEntityManager();
 	for (auto& entity : entityManager.getEntities())
@@ -187,12 +135,6 @@ void BoxSelector::handleEntityCollisions()
 		if (m_rectAABB.intersects(componentCollidable.m_AABB))
 		{
 			m_systemManager.addSystemMessage(SystemMessage(SystemEvent::Selected, SystemType::Selectable, entity));
-			m_unitSelectPositioning.addEntityID(entity->m_ID);
-		}
-		else
-		{
-			m_systemManager.addSystemMessage(SystemMessage(SystemEvent::Deselected, SystemType::Selectable, entity));
-			m_unitSelectPositioning.removeEntity(entity->m_ID);
 		}
 	}
 }

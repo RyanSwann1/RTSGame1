@@ -15,7 +15,7 @@ class Window
 		InputHandler(EventManager<InputEvent>& inputEventManager);
 
 		EventManager<InputEvent>& getInputEventManager();
-		void update(const sf::Event& sfmlEvent);
+		void update(const sf::Event& sfmlEvent, sf::RenderWindow& window);
 
 	private:
 		EventManager<InputEvent>& m_inputEventManager;

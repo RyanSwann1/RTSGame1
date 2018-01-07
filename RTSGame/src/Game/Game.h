@@ -5,7 +5,7 @@
 #include <Managers\EntityManager.h>
 #include <Managers\SystemManager.h>
 #include <Window.h>
-#include <Game\BoxSelector.h>
+#include <Game\EntitySelector.h>
 #include <Game\FrameTimer.h>
 
 class Game
@@ -26,7 +26,7 @@ private:
 	FrameTimer m_frameTimer;
 	EventManager<InputEvent> m_inputEventManager;
 	Window m_window;
-	BoxSelector m_boxSelector;
+	EntitySelector m_entitySelector;
 	EntityManager m_entityManager;
 	SystemManager m_systemManager;
 };

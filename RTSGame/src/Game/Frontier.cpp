@@ -1,34 +1,38 @@
 #include <Game\Frontier.h>
+#include <vector>
+#include <Game\Point.h>
 #include <Game\CollisionHandler.h>
-#include <math.h>
+#include <Game\Graph.h>
 
-Frontier::Frontier()
-	: m_frontier()
-{}
+void addNeighbouringPointsToFrontier(const sf::Vector2f& startingPosition, Graph& graph);
 
-void Frontier::createFrontier(const sf::Vector2f & startingPosition, int nodeAmount)
+void Frontier::createFrontier(const sf::Vector2f & startingPosition, Graph & graph, int nodeAmount)
 {
+	std::vector<Point> frontier;
 	sf::Vector2f nextPosition = startingPosition;
-	while (m_frontier.size() < nodeAmount)
+	while (frontier.size() < nodeAmount)
 	{
-
+		
 	}
 }
 
-void Frontier::assignNextPosition(const sf::Vector2f & startingPosition)
+void addNeighbouringPointsToFrontier(const sf::Vector2f & startingPosition, Graph & graph)
 {
 	const int searchRadius = 1;
-	const auto origin = sf::Vector2f(std::floor(startingPosition.x / 16), std::floor(startingPosition.y / 16));
 	//x
-	for (int x = origin.x - searchRadius; x <= origin.x + searchRadius; ++x)
+	for (int x = startingPosition.x - searchRadius; x < startingPosition.x + searchRadius; ++x)
 	{
-	
+		if (graph.isOnGraph(sf::Vector2f(x, startingPosition.y)))
+		{
+			continue;
+		}
+
+		if(CollisionHandler::isEntityAtPosition()
 	}
-	
+
 	//y
-	for(int y = origin.y - searchRadius; y <= origin.y + searchRadius; ++y)
+	for (int y = startingPosition.y - searchRadius; y < startingPosition.y + searchRadius; ++y)
 	{
 
 	}
-
 }

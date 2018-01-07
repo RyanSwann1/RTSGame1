@@ -2,6 +2,9 @@
 
 #include <Game\Graph.h>
 
+//Calculate each units distance from the required point to move
+//Assign each unit to certain point in which it is the 
+
 class Entity;
 class EntityManager;
 enum class Direction;
@@ -14,19 +17,16 @@ class MovementGraph
 	//Make control flow easier to read
 	//Make header files easier to read - what you see is what you get
 	//Make sure class cannot be mis-used - IE calling functions in the wrong order - shouldn't be able to do that
-
 	//Put these classes in the cpp file 
 	//Shouldn't hvae to look at it straight away, not used in the header file
 	//Aim is simplicity - what you see is what you get
 	//What does this class do
 	//How much data does this class store
-	
 	//Dont put it in the header file - doesn't need to be used there
 	//Shouldn't be a class
 	//Point of a class is to group data together
 	//Have a method instead
 	//Interface has no public methods - red flag
-
 	//Do not allow class to be mis used
 	//Can remove createGraph from the public interface
 	//Do not have to class methods in a certain order - if have to == bad design
@@ -47,7 +47,6 @@ class MovementGraph
 	private:
 		sf::FloatRect m_destination;
 	};
-	
 	class TargetPosition
 	{
 	public:
@@ -81,8 +80,6 @@ public:
 	
 	void createGraph(const sf::Vector2f& startingPosition, const sf::Vector2f& targetPosition, std::unique_ptr<Entity>& entity);
 	void updateDestination(SystemManager& systemManager, EntityManager& entityManager, std::unique_ptr<Entity>& entity);
-	bool isEntityOnTargetPosition(const ComponentPosition& componentPosition) const;
-	void handleEntityReachingTargetPosition(EntityManager& entityManager, std::unique_ptr<Entity>& entity);
 
 private:
 	Graph m_graph;
@@ -90,5 +87,4 @@ private:
 	TargetPosition m_targetPosition;
 
 	void assignNewDestination(const sf::Vector2f& startingPosition, std::unique_ptr<Entity>& entity);
-	void changeGraphForEntityCollisions(int currentEntityID);
 };
