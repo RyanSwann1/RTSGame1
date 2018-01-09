@@ -39,6 +39,23 @@ bool CollisionHandler::isEntityAtPosition(const sf::Vector2f & position, int ent
 	return false;
 }
 
+bool CollisionHandler::isEntityAtPosition(const sf::Vector2f & position)
+{
+	auto& entityManager = EntityManagerLocator::getEntityManager();
+	const auto AABB = sf::FloatRect(position.x, position.y, 16, 16);
+	for (auto& entity : entityManager.getEntities())
+	{
+		//Check for collision
+		const auto& componentCollidable = entityManager.getEntityComponent<ComponentCollidable>(ComponentType::Collidable, entity);
+		if (componentCollidable.m_AABB.intersects(AABB))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool CollisionHandler::isEntityCollidingWithDestination(const sf::FloatRect& destination, EntityManager & entityManager, std::unique_ptr<Entity>& entity)
 {
 	const auto& entityAABB = entityManager.getEntityComponent<ComponentCollidable>(ComponentType::Collidable, entity).m_AABB;

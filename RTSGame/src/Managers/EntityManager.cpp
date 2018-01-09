@@ -7,7 +7,6 @@
 #include <Components\ComponentMovable.h>
 #include <Components\ComponentAIMovement.h>
 #include <Systems\SystemType.h>
-#include <Entities\EntityToSpawn.h>
 
 //Entity Initializer
 void EntityManager::EntityInitializer::initializeEntityComponents(const sf::Vector2f& startingPosition, std::unique_ptr<Entity>& entity) const

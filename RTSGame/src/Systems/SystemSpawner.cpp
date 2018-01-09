@@ -4,8 +4,8 @@
 #include <Components\ComponentSpawner.h>
 #include <Locators\FrameTimerLocator.h>
 #include <Game\FrameTimer.h>
-
-
+#include <Game\Graph.h>
+#include <Game\Frontier.h>
 
 SystemSpawner::SystemSpawner(SystemManager & systemManager, SystemType systemType, ComponentType requiredComponent)
 	: SystemBase(systemManager, systemType, requiredComponent)
@@ -36,8 +36,6 @@ void SystemSpawner::spawnEntity(std::unique_ptr<Entity>& entity, ComponentSpawne
 	{
 		auto& entityToSpawn = componentSpawner.m_entitySpawnQueue.back();
 		//Assign the starting position from here via a Frontier/Graph
-
-		//entityManager.addEntity(std::move(entityToSpawn), ;
 		componentSpawner.m_spawnTimer.reset();
 	}
 }

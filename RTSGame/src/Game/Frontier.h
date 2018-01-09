@@ -5,5 +5,5 @@
 class Graph;
 namespace Frontier
 {
-	void createFrontier(const sf::Vector2f& startingPosition, Graph& graph, int nodeAmount = 0);
+	void createFrontier(const sf::Vector2f& startingPosition, Graph& graph, int graphSize = 0);
 }
